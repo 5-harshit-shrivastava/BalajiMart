@@ -2,6 +2,7 @@ import { getProducts } from "@/services/productService"
 import { SalesChart } from "@/components/dashboard/SalesChart"
 import { InventoryTable } from "@/components/dashboard/InventoryTable"
 import { ReorderSuggestions } from "@/components/dashboard/ReorderSuggestions"
+import { SeedDataButton } from "@/components/dashboard/SeedDataButton"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Package, AlertTriangle } from "lucide-react"
 import type { Product } from "@/lib/types"
@@ -38,7 +39,10 @@ export default async function DashboardPage() {
           <h1 className="text-3xl font-bold tracking-tight">Owner Dashboard</h1>
           <p className="text-muted-foreground">Welcome back, here's your business overview.</p>
         </div>
-        <ReorderSuggestions products={products} />
+        <div className="flex items-center gap-2">
+            <ReorderSuggestions products={products} />
+            <SeedDataButton />
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
