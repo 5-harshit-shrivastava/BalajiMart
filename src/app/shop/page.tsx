@@ -73,8 +73,8 @@ function ShopPage() {
             <div className="p-4 sm:p-6 lg:p-8 space-y-6">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight hidden md:block">Welcome to Balaji Mart</h1>
-                        <p className="text-muted-foreground">Browse our products below or use the search bar.</p>
+                        <h1 className="text-3xl font-bold tracking-tight hidden md:block">Shop at Balaji Mart</h1>
+                        <p className="text-muted-foreground">Find everything you need, from daily essentials to special treats.</p>
                     </div>
                     <div className="relative w-full sm:max-w-xs">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
