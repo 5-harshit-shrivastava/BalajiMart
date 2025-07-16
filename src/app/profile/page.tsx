@@ -82,11 +82,11 @@ function ProfilePage() {
           <div className="flex items-center gap-4">
              <User className="h-8 w-8 text-primary" />
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">My Profile</h1>
-              <p className="text-muted-foreground">View and edit your personal information.</p>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">My Profile</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">View and edit your personal information.</p>
             </div>
           </div>
-          <Card className="max-w-2xl">
+          <Card className="w-full max-w-2xl">
             <CardHeader>
               <CardTitle>Personal Details</CardTitle>
               <CardDescription>Keep your information up to date.</CardDescription>
