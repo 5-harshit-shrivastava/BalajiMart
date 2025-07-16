@@ -20,9 +20,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
-import { MoreHorizontal, RefreshCw } from "lucide-react"
+import { MoreHorizontal, RefreshCw, ShoppingCart } from "lucide-react"
 import type { Order } from "@/lib/types"
 import { toast } from "@/hooks/use-toast";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function DashboardOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -77,94 +78,103 @@ export default function DashboardOrdersPage() {
       case 'Processing':
       case 'In Delivery':
       case 'Delivered':
-        return 'default' // Green background
+        return 'default'
       default:
-        return 'secondary'
+        return 'default'
     }
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Order Management</h1>
-          <p className="text-muted-foreground">View and manage all customer orders.</p>
+    <>
+      <header className="flex h-14 items-center gap-4 border-b bg-background px-4 md:hidden">
+        <SidebarTrigger />
+        <div className="flex items-center gap-2">
+            <ShoppingCart className="h-6 w-6" />
+            <h1 className="text-lg font-semibold">Orders</h1>
         </div>
-        <Button onClick={fetchOrders} variant="outline" size="icon" disabled={loading}>
-          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-        </Button>
-      </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>All Orders</CardTitle>
-          <CardDescription>A complete list of all orders placed through your store.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Order ID</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Address</TableHead>
-                <TableHead>Items</TableHead>
-                <TableHead className="text-right">Total</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
+      </header>
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="hidden md:block">
+            <h1 className="text-3xl font-bold tracking-tight">Order Management</h1>
+            <p className="text-muted-foreground">View and manage all customer orders.</p>
+          </div>
+          <Button onClick={fetchOrders} variant="outline" size="icon" disabled={loading}>
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          </Button>
+        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>All Orders</CardTitle>
+            <CardDescription>A complete list of all orders placed through your store.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center">Loading orders...</TableCell>
+                  <TableHead>Order ID</TableHead>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Address</TableHead>
+                  <TableHead>Items</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ) : orders.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="text-center">No orders found.</TableCell>
-                </TableRow>
-              ) : (
-                orders.map((order) => (
-                  <TableRow key={order.id}>
-                    <TableCell className="font-medium">{order.id.substring(0, 7)}</TableCell>
-                    <TableCell>
-                      <div>{order.customerName}</div>
-                      <div className="text-sm text-muted-foreground">{order.customerPhone}</div>
-                    </TableCell>
-                    <TableCell>{new Date(order.date).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
-                    </TableCell>
-                    <TableCell className="max-w-xs truncate">{order.customerAddress}</TableCell>
-                    <TableCell className="max-w-xs truncate">{order.items.map(item => `${item.name} (x${item.quantity})`).join(', ')}</TableCell>
-                    <TableCell className="text-right">₹{order.total.toFixed(2)}</TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                           <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleStatusChange(order.id, 'Processing'); }}>
-                            Mark as Processing
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleStatusChange(order.id, 'In Delivery'); }}>
-                            Mark as In Delivery
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleStatusChange(order.id, 'Delivered'); }}>
-                            Mark as Delivered
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center">Loading orders...</TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+                ) : orders.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center">No orders found.</TableCell>
+                  </TableRow>
+                ) : (
+                  orders.map((order) => (
+                    <TableRow key={order.id}>
+                      <TableCell className="font-medium">{order.id.substring(0, 7)}</TableCell>
+                      <TableCell>
+                        <div>{order.customerName}</div>
+                        <div className="text-sm text-muted-foreground">{order.customerPhone}</div>
+                      </TableCell>
+                      <TableCell>{new Date(order.date).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
+                      </TableCell>
+                      <TableCell className="max-w-xs truncate">{order.customerAddress}</TableCell>
+                      <TableCell className="max-w-xs truncate">{order.items.map(item => `${item.name} (x${item.quantity})`).join(', ')}</TableCell>
+                      <TableCell className="text-right">₹{order.total.toFixed(2)}</TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <span className="sr-only">Open menu</span>
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleStatusChange(order.id, 'Processing'); }}>
+                              Mark as Processing
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleStatusChange(order.id, 'In Delivery'); }}>
+                              Mark as In Delivery
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleStatusChange(order.id, 'Delivered'); }}>
+                              Mark as Delivered
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   )
 }

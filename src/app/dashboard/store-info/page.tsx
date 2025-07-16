@@ -9,10 +9,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Phone, MapPin, Edit, Loader2 } from "lucide-react";
+import { Phone, MapPin, Edit, Loader2, Store } from "lucide-react";
 import { getStoreInfo, updateStoreInfo } from "@/services/storeInfoService";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from 'next/navigation';
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const storeInfoSchema = z.object({
   address: z.string().min(10, { message: "Address must be at least 10 characters." }),
@@ -81,68 +82,77 @@ export default function StoreInfoPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-            <h1 className="text-3xl font-bold tracking-tight">Store Information</h1>
-            <p className="text-muted-foreground">Manage your store's contact and location details.</p>
+    <>
+      <header className="flex h-14 items-center gap-4 border-b bg-background px-4 md:hidden">
+        <SidebarTrigger />
+        <div className="flex items-center gap-2">
+            <Store className="h-6 w-6" />
+            <h1 className="text-lg font-semibold">Store Info</h1>
         </div>
-        {!isEditing && (
-            <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit
-            </Button>
-        )}
-      </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Balaji Mart</CardTitle>
-          <CardDescription>Your store's contact and location details.</CardDescription>
-        </CardHeader>
-        <CardContent>
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      </header>
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="hidden md:block">
+              <h1 className="text-3xl font-bold tracking-tight">Store Information</h1>
+              <p className="text-muted-foreground">Manage your store's contact and location details.</p>
+          </div>
+          {!isEditing && (
+              <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit
+              </Button>
+          )}
+        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Balaji Mart</CardTitle>
+            <CardDescription>Your store's contact and location details.</CardDescription>
+          </CardHeader>
+          <CardContent>
+              <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                      <FormField
+                      control={form.control}
+                      name="address"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2"><MapPin className="h-4 w-4" /> Address</FormLabel>
+                          <FormControl>
+                            <Input {...field} disabled={!isEditing || form.formState.isSubmitting} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     <FormField
-                    control={form.control}
-                    name="address"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2"><MapPin className="h-4 w-4" /> Address</FormLabel>
-                        <FormControl>
-                          <Input {...field} disabled={!isEditing || form.formState.isSubmitting} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                      control={form.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2"><Phone className="h-4 w-4" /> Phone Number</FormLabel>
+                          <FormControl>
+                            <Input {...field} disabled={!isEditing || form.formState.isSubmitting} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {isEditing && (
+                      <div className="flex justify-end gap-2">
+                          <Button type="button" variant="ghost" onClick={() => setIsEditing(false)} disabled={form.formState.isSubmitting}>
+                              Cancel
+                          </Button>
+                          <Button type="submit" disabled={form.formState.isSubmitting}>
+                              {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                              Save Changes
+                          </Button>
+                      </div>
                     )}
-                  />
-                   <FormField
-                    control={form.control}
-                    name="phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2"><Phone className="h-4 w-4" /> Phone Number</FormLabel>
-                        <FormControl>
-                          <Input {...field} disabled={!isEditing || form.formState.isSubmitting} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  {isEditing && (
-                    <div className="flex justify-end gap-2">
-                        <Button type="button" variant="ghost" onClick={() => setIsEditing(false)} disabled={form.formState.isSubmitting}>
-                            Cancel
-                        </Button>
-                        <Button type="submit" disabled={form.formState.isSubmitting}>
-                            {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Save Changes
-                        </Button>
-                    </div>
-                  )}
-                </form>
-            </Form>
-        </CardContent>
-      </Card>
-    </div>
+                  </form>
+              </Form>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   );
 }
