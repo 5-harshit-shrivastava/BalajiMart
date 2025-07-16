@@ -8,6 +8,9 @@ import { onAuthStateChanged, User as FirebaseUser, signOut, signInWithEmailAndPa
 import { getUserData } from '@/services/authService';
 import type { AppUser } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
+import { Sidebar, SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { DashboardNav } from '@/components/dashboard/DashboardNav';
+import { CustomerNav } from '@/components/CustomerNav';
 
 interface AuthContextType {
   user: AppUser | null;
@@ -68,7 +71,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (user.role === 'owner') {
         router.replace('/dashboard');
       } else {
-        // For customers, check if info is complete
         if (!user.infoComplete) {
             router.replace('/customer-info');
         } else {
@@ -79,20 +81,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     if (user.role === 'owner') {
-      // Owner should be on dashboard pages
       if (!pathname.startsWith('/dashboard')) {
         router.replace('/dashboard');
       }
     } else if (user.role === 'customer') {
-      // Customer needs to complete their info first
       if (!user.infoComplete && !isCustomerInfoPage) {
         router.replace('/customer-info');
       }
-      // If info is complete but they are on the info page, redirect to home
       else if (user.infoComplete && isCustomerInfoPage) {
         router.replace('/');
       }
-      // Customers should not be able to access the dashboard
       else if (pathname.startsWith('/dashboard')) {
         router.replace('/');
       }
@@ -105,7 +103,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setError(null);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // Let the useEffect handle the redirect
       return true;
     } catch (err: any) {
       console.error(err);
@@ -136,29 +133,66 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
   }
 
-  // This prevents flashing the wrong UI while waiting for auth state
-  const isAuthReady = !loading;
-  const isCorrectPage = () => {
-    if(loading) return false; // Not ready yet
-    if(!user) return pathname === '/login';
-    if(user.role === 'owner') return pathname.startsWith('/dashboard');
-    if(user.role === 'customer' && !user.infoComplete) return pathname === '/customer-info';
-    // If we get here, it's a customer with complete info
-    return !pathname.startsWith('/dashboard') && pathname !== '/customer-info';
-  }
+  const renderContent = () => {
+    if (loading) {
+       return (
+            <div className="w-full h-screen flex items-center justify-center bg-background">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+    if (!user) {
+        // Unauthenticated user on /login page
+        return children;
+    }
+    if (user.role === 'owner') {
+        if (pathname.startsWith('/dashboard')) {
+            return (
+                <SidebarProvider>
+                    <Sidebar>
+                        <DashboardNav />
+                    </Sidebar>
+                    <SidebarInset>
+                        <main className="min-h-screen">
+                            {children}
+                        </main>
+                    </SidebarInset>
+                </SidebarProvider>
+            )
+        }
+    }
+    if (user.role === 'customer') {
+        if (pathname === '/customer-info') {
+            return children;
+        }
+         if (!pathname.startsWith('/dashboard')) {
+            return (
+                <SidebarProvider>
+                    <Sidebar>
+                        <CustomerNav />
+                    </Sidebar>
+                    <SidebarInset>
+                         <main className="min-h-screen">
+                            {children}
+                        </main>
+                    </SidebarInset>
+                </SidebarProvider>
+            )
+         }
+    }
 
-
-  if (!isAuthReady || !isCorrectPage()) {
-     return (
+    // Fallback loader while redirecting
+    return (
         <div className="w-full h-screen flex items-center justify-center bg-background">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
     );
   }
 
+
   return (
     <AuthContext.Provider value={{ user, loading, error, setError, login, logout, refreshUser }}>
-        {children}
+        {renderContent()}
     </AuthContext.Provider>
   );
 };

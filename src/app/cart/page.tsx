@@ -2,9 +2,7 @@
 "use client"
 
 import { useAuth } from "@/hooks/use-auth"
-import { useRouter } from "next/navigation"
 import { useCart } from "@/hooks/use-cart"
-import { Header } from "@/components/Header"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -19,7 +17,6 @@ import { useState } from "react"
 
 function CartPage() {
   const { user, loading } = useAuth();
-  const router = useRouter();
   const { cartItems, updateQuantity, removeFromCart, cartTotal, clearCart } = useCart()
   const { toast } = useToast();
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
@@ -59,10 +56,13 @@ function CartPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      <main className="flex-1 container max-w-screen-2xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold tracking-tight mb-6">Your Cart</h1>
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+        <div className="flex items-center justify-between">
+            <div>
+                <h1 className="text-3xl font-bold tracking-tight">Your Cart</h1>
+                <p className="text-muted-foreground">Review your items and proceed to checkout.</p>
+            </div>
+        </div>
         {cartItems.length > 0 ? (
           <div className="grid md:grid-cols-[2fr_1fr] gap-8 items-start">
             <Card>
@@ -75,7 +75,7 @@ function CartPage() {
                         alt={item.product.name}
                         width={80}
                         height={80}
-                        className="rounded-md object-cover"
+                        className="rounded-md object-cover aspect-square"
                         data-ai-hint={item.product['data-ai-hint']}
                       />
                       <div className="flex-grow">
@@ -129,15 +129,16 @@ function CartPage() {
           </div>
         ) : (
           <Card className="text-center py-20">
-            <ShoppingCart className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-            <h2 className="text-2xl font-semibold mb-2">Your cart is empty</h2>
-            <p className="text-muted-foreground mb-6">Looks like you haven't added anything to your cart yet.</p>
-            <Link href="/" passHref>
-              <Button>Start Shopping</Button>
-            </Link>
+            <CardContent>
+                <ShoppingCart className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+                <h2 className="text-2xl font-semibold mb-2">Your cart is empty</h2>
+                <p className="text-muted-foreground mb-6">Looks like you haven't added anything to your cart yet.</p>
+                <Link href="/" passHref>
+                <Button>Start Shopping</Button>
+                </Link>
+            </CardContent>
           </Card>
         )}
-      </main>
     </div>
   )
 }
