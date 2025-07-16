@@ -1,8 +1,11 @@
-import { products } from '@/lib/data'
-import { Header } from '@/components/Header'
-import { ProductCard } from '@/components/ProductCard'
+import { getProducts } from '@/services/productService';
+import { Header } from '@/components/Header';
+import { ProductCard } from '@/components/ProductCard';
+import type { Product } from '@/lib/types';
 
-export default function ShopPage() {
+export default async function ShopPage() {
+  const products: Product[] = await getProducts();
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />

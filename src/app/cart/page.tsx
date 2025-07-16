@@ -10,18 +10,42 @@ import { Separator } from "@/components/ui/separator"
 import { Trash2, ShoppingCart } from "lucide-react"
 import Link from "next/link"
 import { toast } from "@/hooks/use-toast"
+import { createOrder } from "@/services/orderService"
 
 export default function CartPage() {
   const { cartItems, updateQuantity, removeFromCart, cartTotal, clearCart } = useCart()
 
-  const handlePlaceOrder = () => {
-    // In a real app, this would trigger an API call to create an order
-    toast({
-      title: "Order Placed!",
-      description: "Your order has been successfully placed. Thank you for shopping!",
-      variant: "default"
-    })
-    clearCart()
+  const handlePlaceOrder = async () => {
+    if (cartItems.length === 0) return;
+
+    try {
+        await createOrder({
+            // These would come from a user session/form in a real app
+            customerName: 'Alice Johnson', 
+            customerPhone: '+91 98765 43210',
+            customerAddress: '456 Oak Avenue, Mumbai, MH 400001',
+            items: cartItems.map(item => ({
+                productId: item.product.id,
+                name: item.product.name,
+                quantity: item.quantity,
+                price: item.product.price
+            })),
+            total: cartTotal,
+        });
+
+        toast({
+            title: "Order Placed!",
+            description: "Your order has been successfully placed. Thank you for shopping!",
+        })
+        clearCart()
+    } catch (error) {
+        console.error("Failed to place order:", error);
+        toast({
+            title: "Order Failed",
+            description: "There was a problem placing your order. Please try again.",
+            variant: "destructive",
+        })
+    }
   }
 
   return (

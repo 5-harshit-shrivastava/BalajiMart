@@ -1,10 +1,13 @@
-import { products } from "@/lib/data"
+import { getProducts } from "@/services/productService"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Edit, PlusCircle } from "lucide-react"
 import Image from "next/image"
+import type { Product } from "@/lib/types"
 
-export default function DashboardProductsPage() {
+export default async function DashboardProductsPage() {
+  const products: Product[] = await getProducts();
+  
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

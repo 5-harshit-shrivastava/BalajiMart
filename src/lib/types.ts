@@ -7,6 +7,7 @@ export type Product = {
   price: number;
   image: string;
   sales: number;
+  'data-ai-hint'?: string;
 };
 
 export type OrderItem = {
@@ -23,7 +24,7 @@ export type Order = {
   customerAddress: string;
   items: OrderItem[];
   status: 'In Cart' | 'Ordered Successfully' | 'Delivered' | 'Complete';
-  date: string;
+  date: string; // Should be ISO string date
   total: number;
 };
 

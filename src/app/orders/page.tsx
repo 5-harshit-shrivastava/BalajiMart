@@ -1,12 +1,14 @@
 import { Header } from "@/components/Header"
-import { orders } from "@/lib/data"
+import { getClientOrders } from "@/services/orderService"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Package } from "lucide-react"
+import type { Order } from "@/lib/types"
 
-export default function OrdersPage() {
-  const clientOrders = orders.filter(o => o.customerName.includes("Alice")); // Mocking for one client
+export default async function OrdersPage() {
+  // Mocking for one client, in a real app you'd get the current user
+  const clientOrders: Order[] = await getClientOrders("Alice Johnson"); 
 
   const getStatusVariant = (status: string) => {
     switch (status) {

@@ -13,10 +13,14 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { Wand2, Loader2 } from 'lucide-react'
-import { products } from '@/lib/data'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import type { Product } from '@/lib/types'
 
-export function ReorderSuggestions() {
+interface ReorderSuggestionsProps {
+    products: Product[];
+}
+
+export function ReorderSuggestions({ products }: ReorderSuggestionsProps) {
   const [loading, setLoading] = useState(false)
   const [suggestions, setSuggestions] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)

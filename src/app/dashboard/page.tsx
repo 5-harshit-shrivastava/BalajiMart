@@ -1,11 +1,11 @@
-import { products } from "@/lib/data"
+import { getProducts } from "@/services/productService"
 import { SalesChart } from "@/components/dashboard/SalesChart"
 import { InventoryTable } from "@/components/dashboard/InventoryTable"
 import { ReorderSuggestions } from "@/components/dashboard/ReorderSuggestions"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Package, AlertTriangle } from "lucide-react"
+import type { Product } from "@/lib/types"
 
-// Custom Rupee icon component
 const RupeeSign = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
         <path d="M6 3h12" />
@@ -19,8 +19,8 @@ const RupeeSign = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 );
 
-
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const products: Product[] = await getProducts();
   const totalStock = products.reduce((sum, p) => sum + p.stock, 0)
   const lowStockItems = products.filter(p => p.stock < p.lowStockThreshold).length
   const totalValue = products.reduce((sum, p) => sum + p.stock * p.price, 0)
@@ -38,7 +38,7 @@ export default function DashboardPage() {
           <h1 className="text-3xl font-bold tracking-tight">Owner Dashboard</h1>
           <p className="text-muted-foreground">Welcome back, here's your business overview.</p>
         </div>
-        <ReorderSuggestions />
+        <ReorderSuggestions products={products} />
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">

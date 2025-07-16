@@ -1,4 +1,4 @@
-import { orders } from "@/lib/data"
+import { getOrders } from "@/services/orderService"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import {
@@ -17,8 +17,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { MoreHorizontal } from "lucide-react"
+import type { Order } from "@/lib/types"
 
-export default function DashboardOrdersPage() {
+export default async function DashboardOrdersPage() {
+  const orders: Order[] = await getOrders();
+
   const getStatusVariant = (status: string) => {
     switch (status) {
       case 'Ordered Successfully': return 'secondary'
