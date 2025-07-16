@@ -36,6 +36,7 @@ const productSchema = z.object({
   stock: z.coerce.number().int().min(0, { message: "Stock cannot be negative." }),
   lowStockThreshold: z.coerce.number().int().min(0, { message: "Threshold cannot be negative." }),
   price: z.coerce.number().min(0, { message: "Price cannot be negative." }),
+  image: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
 });
 
 export function AddProductDialog() {
@@ -52,16 +53,22 @@ export function AddProductDialog() {
       stock: 0,
       lowStockThreshold: 10,
       price: 0,
+      image: "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof productSchema>) {
     setLoading(true);
     try {
+      const { name, image, ...rest } = values;
+      const finalImage = image || "https://placehold.co/600x400.png";
+      const hint = name.split(' ').slice(0, 2).join(' ').toLowerCase();
+
       await addProduct({
-        ...values,
-        image: "https://placehold.co/600x400.png",
-        'data-ai-hint': 'new product',
+        name,
+        image: finalImage,
+        ...rest,
+        'data-ai-hint': hint,
         sales: 0
       });
       toast({
@@ -108,6 +115,19 @@ export function AddProductDialog() {
                   <FormLabel>Product Name</FormLabel>
                   <FormControl>
                     <Input placeholder="e.g., Amul Gold Milk" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="image"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Image URL</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://example.com/image.png" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
