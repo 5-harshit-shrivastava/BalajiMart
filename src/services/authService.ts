@@ -65,16 +65,21 @@ export const createCustomerUser = async (uid: string, email: string, name: strin
 };
 
 export const signUpAndVerify = async (email: string, password: string, name: string) => {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    
-    // Send verification email
-    await sendEmailVerification(user);
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        
+        // Send verification email
+        await sendEmailVerification(user);
 
-    // Create user document in Firestore
-    await createCustomerUser(user.uid, email, name);
-    
-    return user;
+        // Create user document in Firestore
+        await createCustomerUser(user.uid, email, name);
+        
+        return user;
+    } catch(error) {
+        // Re-throw the error so it can be caught by the calling function in useAuth
+        throw error;
+    }
 }
 
 
