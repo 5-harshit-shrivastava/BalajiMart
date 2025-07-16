@@ -144,13 +144,13 @@ export default function DashboardOrdersPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                           <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'Processing')}>
+                           <DropdownMenuItem onSelect={() => handleStatusChange(order.id, 'Processing')}>
                             Mark as Processing
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'In Delivery')}>
+                          <DropdownMenuItem onSelect={() => handleStatusChange(order.id, 'In Delivery')}>
                             Mark as In Delivery
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'Delivered')}>
+                          <DropdownMenuItem onSelect={() => handleStatusChange(order.id, 'Delivered')}>
                             Mark as Delivered
                           </DropdownMenuItem>
                         </DropdownMenuContent>
