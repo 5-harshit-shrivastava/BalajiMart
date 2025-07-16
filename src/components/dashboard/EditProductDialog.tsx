@@ -38,7 +38,6 @@ import { Input } from "@/components/ui/input";
 import { Edit, Loader2, Upload, Trash2 } from "lucide-react";
 import { updateProduct, deleteProduct } from '@/services/productService';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import type { Product } from '@/lib/types';
 
@@ -61,7 +60,6 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(product.image);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const { toast } = useToast();
-  const router = useRouter();
 
   const form = useForm<z.infer<typeof productSchema>>({
     resolver: zodResolver(productSchema),
@@ -117,7 +115,7 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
       });
       
       setOpen(false);
-      // router.refresh() is no longer needed because revalidatePath handles it
+      // No need for router.refresh() as revalidatePath in the service handles it
     } catch (error) {
       console.error("Failed to update product:", error);
       toast({

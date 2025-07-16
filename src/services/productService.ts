@@ -39,7 +39,7 @@ export async function updateProduct(id: string, productData: Partial<Omit<Produc
     const updateData: Partial<Product> = { ...productData };
 
     if (imageFile) {
-        // To be safe, let's delete the old image if it exists
+        // To be safe, let's delete the old image if it exists and is not a placeholder
         const oldDocSnap = await getDoc(productRef);
         if (oldDocSnap.exists()) {
             const oldProductData = oldDocSnap.data() as Product;
@@ -48,8 +48,9 @@ export async function updateProduct(id: string, productData: Partial<Omit<Produc
                     const oldImageRef = ref(storage, oldProductData.image);
                     await deleteObject(oldImageRef);
                 } catch (error: any) {
+                    // If the object doesn't exist, we can ignore the error and continue.
                     if (error.code !== 'storage/object-not-found') {
-                        console.error("Could not delete old image, continuing update.", error);
+                        console.error("Could not delete old image, but continuing update.", error);
                     }
                 }
             }
@@ -70,7 +71,7 @@ export async function deleteProduct(id: string): Promise<void> {
     
     if (productDoc.exists()) {
         const productData = productDoc.data() as Product;
-        // Delete image from storage if it's a firebase storage URL
+        // Delete image from storage only if it's a real Firebase Storage URL
         if (productData.image && productData.image.includes('firebasestorage.googleapis.com')) {
             try {
                 const imageRef = ref(storage, productData.image);
