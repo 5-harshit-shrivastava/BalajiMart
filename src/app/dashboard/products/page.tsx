@@ -5,6 +5,7 @@ import Image from "next/image"
 import type { Product } from "@/lib/types"
 import { AddProductDialog } from "@/components/dashboard/AddProductDialog"
 import { EditProductDialog } from "@/components/dashboard/EditProductDialog"
+import { Badge } from "@/components/ui/badge"
 
 export default async function DashboardProductsPage() {
   const products: Product[] = await getProducts();
@@ -26,7 +27,7 @@ export default async function DashboardProductsPage() {
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {products.length > 0 ? products.map((product) => (
-              <Card key={product.id} className="overflow-hidden">
+              <Card key={product.id} className="overflow-hidden flex flex-col">
                 <div className="aspect-square w-full overflow-hidden">
                   <Image
                     src={product.image}
@@ -37,10 +38,19 @@ export default async function DashboardProductsPage() {
                     data-ai-hint={product['data-ai-hint'] || "product image"}
                   />
                 </div>
-                <div className="p-4">
+                <div className="p-4 flex flex-col flex-grow">
                   <h3 className="font-semibold truncate">{product.name}</h3>
                   <p className="text-sm text-muted-foreground">{product.sku}</p>
-                  <div className="flex justify-between items-center mt-4">
+                  <div className="mt-2">
+                    {product.stock < product.lowStockThreshold ? (
+                        <Badge variant="destructive">Low Stock ({product.stock})</Badge>
+                    ) : product.stock > 0 ? (
+                        <Badge variant="secondary">In Stock ({product.stock})</Badge>
+                    ) : (
+                        <Badge variant="outline">Out of Stock</Badge>
+                    )}
+                  </div>
+                  <div className="flex justify-between items-center mt-4 pt-4 border-t border-border">
                     <span className="font-bold text-lg text-primary">₹{product.price.toFixed(2)}</span>
                     <EditProductDialog product={product} />
                   </div>
