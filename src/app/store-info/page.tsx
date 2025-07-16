@@ -56,7 +56,7 @@ export default function CustomerStoreInfoPage() {
                     <p className="text-muted-foreground">Our physical store location and contact details.</p>
                 </div>
               </div>
-              <Card className="max-w-2xl">
+              <Card className="w-full max-w-xl">
                 <CardHeader>
                   <CardTitle>Balaji Mart</CardTitle>
                   <CardDescription>Your friendly neighborhood store.</CardDescription>
@@ -69,14 +69,14 @@ export default function CustomerStoreInfoPage() {
                   ) : storeInfo ? (
                     <>
                       <div className="flex items-start gap-4">
-                        <MapPin className="h-5 w-5 mt-1 text-primary" />
+                        <MapPin className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                         <div>
                           <h3 className="font-semibold">Address</h3>
                           <p className="text-muted-foreground">{storeInfo.address}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
-                        <Phone className="h-5 w-5 text-primary" />
+                        <Phone className="h-5 w-5 text-primary flex-shrink-0" />
                         <div>
                           <h3 className="font-semibold">Phone Number</h3>
                           <p className="text-muted-foreground">{storeInfo.phone}</p>

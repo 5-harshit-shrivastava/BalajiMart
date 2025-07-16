@@ -78,7 +78,7 @@ function CartPage() {
                 {cartItems.length > 0 ? (
                   <div className="grid md:grid-cols-[2fr_1fr] gap-8 items-start">
                     <Card>
-                      <CardContent className="p-6">
+                      <CardContent className="p-4 sm:p-6">
                         <ul className="divide-y divide-border">
                           {cartItems.map(item => (
                             <li key={item.product.id} className="flex items-center py-4 gap-4">
@@ -91,7 +91,7 @@ function CartPage() {
                                 data-ai-hint={item.product['data-ai-hint']}
                               />
                               <div className="flex-grow">
-                                <h3 className="font-semibold">{item.product.name}</h3>
+                                <h3 className="font-semibold text-sm sm:text-base">{item.product.name}</h3>
                                 <p className="text-sm text-muted-foreground">₹{item.product.price.toFixed(2)}</p>
                               </div>
                               <div className="flex items-center gap-2">
@@ -100,7 +100,7 @@ function CartPage() {
                                   min="1"
                                   value={item.quantity}
                                   onChange={(e) => updateQuantity(item.product.id, parseInt(e.target.value))}
-                                  className="w-20 h-9"
+                                  className="w-16 h-9"
                                 />
                                  <Button variant="ghost" size="icon" onClick={() => removeFromCart(item.product.id)}>
                                   <Trash2 className="h-4 w-4 text-muted-foreground" />
@@ -113,10 +113,10 @@ function CartPage() {
                       </CardContent>
                     </Card>
                     <Card className="sticky top-24">
-                      <CardHeader>
+                      <CardHeader className="p-4 sm:p-6">
                         <CardTitle>Order Summary</CardTitle>
                       </CardHeader>
-                      <CardContent className="grid gap-4">
+                      <CardContent className="p-4 sm:p-6 grid gap-4">
                         <div className="flex justify-between">
                           <span>Subtotal</span>
                           <span>₹{cartTotal.toFixed(2)}</span>
@@ -131,7 +131,7 @@ function CartPage() {
                           <span>₹{cartTotal.toFixed(2)}</span>
                         </div>
                       </CardContent>
-                      <CardFooter>
+                      <CardFooter className="p-4 sm:p-6">
                          <Button className="w-full" onClick={handlePlaceOrder} disabled={isPlacingOrder}>
                             {isPlacingOrder ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                             Place Order
@@ -141,7 +141,7 @@ function CartPage() {
                   </div>
                 ) : (
                   <Card className="text-center py-20">
-                    <CardContent>
+                    <CardContent className="p-4 sm:p-6">
                         <ShoppingCart className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
                         <h2 className="text-2xl font-semibold mb-2">Your cart is empty</h2>
                         <p className="text-muted-foreground mb-6">Looks like you haven't added anything to your cart yet.</p>

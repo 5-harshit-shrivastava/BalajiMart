@@ -91,7 +91,7 @@ function ProfilePage() {
                   <p className="text-sm sm:text-base text-muted-foreground">View and edit your personal information.</p>
                 </div>
               </div>
-              <Card className="w-full max-w-2xl mx-auto">
+              <Card className="w-full max-w-xl mx-auto">
                 <CardHeader>
                   <CardTitle>Personal Details</CardTitle>
                   <CardDescription>Keep your information up to date.</CardDescription>

@@ -44,7 +44,7 @@ function OrdersPage() {
       case 'Delivered':
         return 'default' // Green background
       default:
-        return 'secondary'
+        return 'default'
     }
   }
 
