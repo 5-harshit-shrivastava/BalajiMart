@@ -68,10 +68,20 @@ export const signUpAndVerify = async (email: string, password: string, name: str
 
 /**
  * Updates customer-specific information in their user document.
+ * This function specifically excludes role changes from the client.
  * @param uid The customer's unique ID.
- * @param data The partial data to update.
+ * @param data The partial data to update (e.g., name, address, phone).
  */
 export const updateCustomerInfo = async (uid: string, data: Partial<Omit<AppUser, 'uid' | 'email' | 'role'>>) => {
     const userDocRef = doc(db, 'users', uid);
-    await updateDoc(userDocRef, data);
+    // Explicitly copy only the allowed fields to prevent role escalation from client.
+    const updateData: Partial<AppUser> = {};
+
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.address !== undefined) updateData.address = data.address;
+    if (data.phone !== undefined) updateData.phone = data.phone;
+    if (data.isFromKota !== undefined) updateData.isFromKota = data.isFromKota;
+    if (data.infoComplete !== undefined) updateData.infoComplete = data.infoComplete;
+    
+    await updateDoc(userDocRef, updateData);
 };
