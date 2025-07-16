@@ -1,0 +1,68 @@
+import { Header } from "@/components/Header"
+import { orders } from "@/lib/data"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Package } from "lucide-react"
+
+export default function OrdersPage() {
+  const clientOrders = orders.filter(o => o.customerName.includes("Alice")); // Mocking for one client
+
+  const getStatusVariant = (status: string) => {
+    switch (status) {
+      case 'Ordered Successfully': return 'secondary'
+      case 'Delivered': return 'default'
+      case 'Complete': return 'outline'
+      default: return 'secondary'
+    }
+  }
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-1 container max-w-screen-2xl mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold tracking-tight mb-6">My Orders</h1>
+        <Card>
+          <CardHeader>
+             <CardTitle>Your Order History</CardTitle>
+             <CardDescription>A list of your past and current orders.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {clientOrders.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Order ID</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Items</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {clientOrders.map((order) => (
+                    <TableRow key={order.id}>
+                      <TableCell className="font-medium">{order.id}</TableCell>
+                      <TableCell>{new Date(order.date).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
+                      </TableCell>
+                       <TableCell>{order.items.map(item => `${item.name} (x${item.quantity})`).join(', ')}</TableCell>
+                      <TableCell className="text-right">${order.total.toFixed(2)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+                <div className="text-center py-20">
+                    <Package className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+                    <h2 className="text-2xl font-semibold mb-2">No orders yet</h2>
+                    <p className="text-muted-foreground">You haven't placed any orders with us.</p>
+                </div>
+            )}
+          </CardContent>
+        </Card>
+      </main>
+    </div>
+  )
+}
