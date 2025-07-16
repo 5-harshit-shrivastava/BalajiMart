@@ -8,9 +8,10 @@ import type { AppUser } from '@/lib/types';
  * If the document doesn't exist, it creates one for a new customer.
  * @param uid The user's unique ID.
  * @param email The user's email.
+ * @param displayName The user's display name, if available.
  * @returns The user data object.
  */
-export const getUserData = async (uid: string, email?: string | null): Promise<AppUser | null> => {
+export const getUserData = async (uid: string, email?: string | null, displayName?: string | null): Promise<AppUser | null> => {
   try {
     const userDocRef = doc(db, 'users', uid);
     const userDocSnap = await getDoc(userDocRef);
@@ -18,24 +19,38 @@ export const getUserData = async (uid: string, email?: string | null): Promise<A
     if (userDocSnap.exists()) {
       return userDocSnap.data() as AppUser;
     } else {
-      // If no document, this is a first-time login for this user.
-      // Create a new customer document for them.
+      // This case is mostly for social auth providers or if creation fails in signUp
+      // For email/password, the document is created in `createCustomerUser`.
       console.log(`Creating new user document for UID: ${uid}`);
-      const newUser: AppUser = {
-        uid,
-        email: email || null,
-        role: 'customer', // Default role
-        name: email?.split('@')[0] || 'New User',
-        infoComplete: false,
-      };
-      await setDoc(userDocRef, newUser);
-      return newUser;
+      return await createCustomerUser(uid, email || '', displayName || email?.split('@')[0] || 'New User');
     }
   } catch (error) {
     console.error("Error fetching or creating user data:", error);
     return null;
   }
 };
+
+
+/**
+ * Creates a new user document in Firestore with the 'customer' role.
+ * @param uid The user's unique ID.
+ * @param email The user's email.
+ * @param name The user's full name.
+ * @returns The newly created user data object.
+ */
+export const createCustomerUser = async (uid: string, email: string, name: string): Promise<AppUser> => {
+    const userDocRef = doc(db, 'users', uid);
+    const newUser: AppUser = {
+      uid,
+      email,
+      role: 'customer',
+      name,
+      infoComplete: false,
+    };
+    await setDoc(userDocRef, newUser);
+    return newUser;
+};
+
 
 /**
  * Updates customer-specific information in their user document.

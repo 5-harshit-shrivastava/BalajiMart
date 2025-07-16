@@ -4,8 +4,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { auth } from '@/lib/firebase';
-import { onAuthStateChanged, User as FirebaseUser, signOut, signInWithEmailAndPassword } from 'firebase/auth';
-import { getUserData } from '@/services/authService';
+import { onAuthStateChanged, User as FirebaseUser, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { getUserData, createCustomerUser } from '@/services/authService';
 import type { AppUser } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
 
@@ -15,6 +15,7 @@ interface AuthContextType {
   error: string | null;
   setError: (error: string | null) => void;
   login: (email:string, password:string) => Promise<boolean>;
+  signUp: (email: string, password: string, name: string) => Promise<boolean>;
   logout: () => void;
   refreshUser: () => Promise<void>;
 }
@@ -39,7 +40,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        const appUser = await getUserData(firebaseUser.uid, firebaseUser.email);
+        const appUser = await getUserData(firebaseUser.uid, firebaseUser.email, firebaseUser.displayName);
         setUser(appUser);
       } else {
         setUser(null);
@@ -114,6 +115,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return false;
     }
   };
+  
+  const signUp = async (email: string, password: string, name: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await createCustomerUser(userCredential.user.uid, email, name);
+      // Let onAuthStateChanged handle setting user and loading state
+      return true;
+    } catch (err: any) {
+       console.error(err);
+      if (err.code === 'auth/email-already-in-use') {
+        setError('This email address is already in use.');
+      } else if (err.code === 'auth/weak-password') {
+        setError('The password is too weak. Please use at least 6 characters.');
+      } else {
+        setError('An unknown error occurred during sign up.');
+      }
+      setLoading(false);
+      return false;
+    }
+  };
+
 
   const logout = async () => {
     await signOut(auth);
@@ -141,7 +165,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, setError, login, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, loading, error, setError, login, signUp, logout, refreshUser }}>
         {children}
     </AuthContext.Provider>
   );
