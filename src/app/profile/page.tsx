@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, User } from 'lucide-react';
 import { updateCustomerInfo } from '@/services/authService';
 import { useToast } from '@/hooks/use-toast';
-import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
+import { SidebarProvider, Sidebar, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { CustomerNav } from '@/components/CustomerNav';
 
 const profileSchema = z.object({
@@ -78,71 +78,77 @@ function ProfilePage() {
         <CustomerNav />
       </Sidebar>
       <SidebarInset>
-        <main className="min-h-screen p-4 sm:p-6 lg:p-8 space-y-6">
-          <div className="flex items-center gap-4">
-             <User className="h-8 w-8 text-primary" />
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">My Profile</h1>
-              <p className="text-sm sm:text-base text-muted-foreground">View and edit your personal information.</p>
+        <main className="min-h-screen">
+            <header className="flex h-14 items-center gap-4 border-b bg-background px-4 md:hidden">
+                 <SidebarTrigger />
+                 <h1 className="text-lg font-semibold">My Profile</h1>
+            </header>
+            <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+                <div className="flex items-center gap-4">
+                 <User className="h-8 w-8 text-primary" />
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">My Profile</h1>
+                  <p className="text-sm sm:text-base text-muted-foreground">View and edit your personal information.</p>
+                </div>
+              </div>
+              <Card className="w-full max-w-2xl mx-auto">
+                <CardHeader>
+                  <CardTitle>Personal Details</CardTitle>
+                  <CardDescription>Keep your information up to date.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Full Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Your full name" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="address"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Address</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Your delivery address" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="phone"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Phone Number</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Your contact number" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <div className="flex justify-end">
+                        <Button type="submit" disabled={form.formState.isSubmitting}>
+                          {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                          Save Changes
+                        </Button>
+                      </div>
+                    </form>
+                  </Form>
+                </CardContent>
+              </Card>
             </div>
-          </div>
-          <Card className="w-full max-w-2xl mx-auto">
-            <CardHeader>
-              <CardTitle>Personal Details</CardTitle>
-              <CardDescription>Keep your information up to date.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Full Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Your full name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="address"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Address</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Your delivery address" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Phone Number</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Your contact number" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="flex justify-end">
-                    <Button type="submit" disabled={form.formState.isSubmitting}>
-                      {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Save Changes
-                    </Button>
-                  </div>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
         </main>
       </SidebarInset>
     </SidebarProvider>
