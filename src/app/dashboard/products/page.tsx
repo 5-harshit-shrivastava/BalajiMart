@@ -1,10 +1,9 @@
 import { getProducts } from "@/services/productService"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Edit } from "lucide-react"
 import Image from "next/image"
 import type { Product } from "@/lib/types"
 import { AddProductDialog } from "@/components/dashboard/AddProductDialog"
+import { EditProductDialog } from "@/components/dashboard/EditProductDialog"
 
 export default async function DashboardProductsPage() {
   const products: Product[] = await getProducts();
@@ -40,10 +39,7 @@ export default async function DashboardProductsPage() {
                   <p className="text-sm text-muted-foreground">{product.sku}</p>
                   <div className="flex justify-between items-center mt-4">
                     <span className="font-bold text-lg text-primary">₹{product.price.toFixed(2)}</span>
-                    <Button variant="outline" size="sm">
-                      <Edit className="mr-2 h-3 w-3" />
-                      Edit
-                    </Button>
+                    <EditProductDialog product={product} />
                   </div>
                 </div>
               </Card>
