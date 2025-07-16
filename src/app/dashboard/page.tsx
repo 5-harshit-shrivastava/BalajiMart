@@ -1,35 +1,28 @@
+import Link from "next/link"
 import { getProducts } from "@/services/productService"
 import { SalesChart } from "@/components/dashboard/SalesChart"
-import { InventoryTable } from "@/components/dashboard/InventoryTable"
-import { ReorderSuggestions } from "@/components/dashboard/ReorderSuggestions"
 import { SeedDataButton } from "@/components/dashboard/SeedDataButton"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Package, AlertTriangle } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Package, ShoppingCart, BarChart2, ArrowRight } from "lucide-react"
 import type { Product } from "@/lib/types"
-
-const RupeeSign = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="M6 3h12" />
-        <path d="M6 8h12" />
-        <path d="M6 13h12" />
-        <path d="M6 18h12" />
-        <path d="M8 3v18" />
-        <path d="M16 3v18" />
-        <path d="M12 3v18" />
-        <path d="m8 13 4-4 4 4" />
-    </svg>
-);
 
 export default async function DashboardPage() {
   const products: Product[] = await getProducts();
-  const totalStock = products.reduce((sum, p) => sum + p.stock, 0)
-  const lowStockItems = products.filter(p => p.stock < p.lowStockThreshold).length
-  const totalValue = products.reduce((sum, p) => sum + p.stock * p.price, 0)
 
-  const stats = [
-    { title: "Total Inventory Value", value: `₹${totalValue.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`, icon: RupeeSign, color: "text-green-500" },
-    { title: "Total Units", value: totalStock, icon: Package, color: "text-blue-500" },
-    { title: "Low Stock Alerts", value: lowStockItems, icon: AlertTriangle, color: "text-yellow-500" },
+  const dashboardCards = [
+    {
+      title: "Track Orders",
+      description: "View and manage all customer orders.",
+      href: "/dashboard/orders",
+      icon: ShoppingCart,
+    },
+    {
+      title: "Manage Inventory",
+      description: "See stock levels and manage products.",
+      href: "/dashboard/products",
+      icon: Package,
+    },
   ]
 
   return (
@@ -39,29 +32,46 @@ export default async function DashboardPage() {
           <h1 className="text-3xl font-bold tracking-tight">Owner Dashboard</h1>
           <p className="text-muted-foreground">Welcome back, here's your business overview.</p>
         </div>
-        <div className="flex items-center gap-2">
-            <ReorderSuggestions products={products} />
-            <SeedDataButton />
-        </div>
+        <SeedDataButton />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        {stats.map(stat => (
-          <Card key={stat.title}>
+      <div className="grid gap-6 md:grid-cols-2">
+        {dashboardCards.map(card => (
+          <Card key={card.title}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <stat.icon className={`h-4 w-4 text-muted-foreground ${stat.color}`} />
+              <div className="space-y-1.5">
+                <CardTitle>{card.title}</CardTitle>
+                <CardDescription>{card.description}</CardDescription>
+              </div>
+              <card.icon className="h-6 w-6 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
+              <Link href={card.href} passHref>
+                <Button variant="outline">
+                  Go to {card.title}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <SalesChart products={products} />
-        <InventoryTable products={products} />
+      <div>
+        <Card>
+           <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+                <BarChart2 className="h-6 w-6" />
+                Customer Insights
+            </CardTitle>
+            <CardDescription>
+              Here are your top-selling products based on units sold.
+            </CardDescription>
+           </CardHeader>
+           <CardContent>
+             <SalesChart products={products} />
+           </CardContent>
+        </Card>
       </div>
     </div>
   )

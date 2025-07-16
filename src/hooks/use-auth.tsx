@@ -64,6 +64,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     // If a user is logged in
+    if (isAuthPage) {
+      if (user.role === 'owner') {
+        router.replace('/dashboard');
+      } else {
+        // For customers, check if info is complete
+        if (!user.infoComplete) {
+            router.replace('/customer-info');
+        } else {
+            router.replace('/');
+        }
+      }
+      return;
+    }
+
     if (user.role === 'owner') {
       // Owner should be on dashboard pages
       if (!pathname.startsWith('/dashboard')) {
@@ -84,11 +98,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     }
 
-    // If a logged-in user somehow lands on the login page, redirect them away
-    if (isAuthPage) {
-      router.replace(user.role === 'owner' ? '/dashboard' : '/');
-    }
-
   }, [user, loading, pathname, router]);
 
   const login = async (email:string, password:string) => {
@@ -96,13 +105,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setError(null);
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      // Let the useEffect handle the redirect
       return true;
     } catch (err: any) {
       console.error(err);
-       if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential' || err.code === 'auth/api-key-not-valid.-please-pass-a-valid-api-key.') {
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
           setError('Invalid email or password. Please try again.');
+      } else if (err.code === 'auth/api-key-not-valid.-please-pass-a-valid-api-key.') {
+          setError('The Firebase API Key is not valid. Please check your configuration.');
       } else {
-          setError('An unknown error occurred. Please try again.');
+          setError('An unknown error occurred during login. Please try again.');
       }
       setLoading(false);
       return false;
@@ -124,10 +136,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
   }
 
-  if (loading) {
+  // This prevents flashing the wrong UI while waiting for auth state
+  const isAuthReady = !loading;
+  const isCorrectPage = () => {
+    if(loading) return false; // Not ready yet
+    if(!user) return pathname === '/login';
+    if(user.role === 'owner') return pathname.startsWith('/dashboard');
+    if(user.role === 'customer' && !user.infoComplete) return pathname === '/customer-info';
+    // If we get here, it's a customer with complete info
+    return !pathname.startsWith('/dashboard') && pathname !== '/customer-info';
+  }
+
+
+  if (!isAuthReady || !isCorrectPage()) {
      return (
-        <div className="w-full h-screen flex items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin" />
+        <div className="w-full h-screen flex items-center justify-center bg-background">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
     );
   }
