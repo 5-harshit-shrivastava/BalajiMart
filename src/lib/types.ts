@@ -1,3 +1,4 @@
+
 export type Product = {
   id: string;
   name: string;
@@ -22,28 +23,5 @@ export type Order = {
   userId: string;
   customerName: string;
   customerPhone: string;
-  customerAddress: string;
-  items: OrderItem[];
-  status: 'In Cart' | 'Ordered Successfully' | 'Delivered' | 'Complete';
-  date: string; // Should be ISO string date
-  total: number;
-};
-
-export type CartItem = {
-  product: Product;
-  quantity: number;
-};
-
-export type UserRole = 'owner' | 'customer';
-
-export type AppUser = {
-  uid: string;
-  email: string | null;
-  role: UserRole;
-  name: string;
-  // customer specific
-  isFromKota?: boolean;
-  address?: string;
-  phone?: string;
-  infoComplete?: boolean;
-};
+...
+```

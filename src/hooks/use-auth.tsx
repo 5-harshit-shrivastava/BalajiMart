@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
@@ -37,11 +36,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
 
   useEffect(() => {
-    // onAuthStateChanged is a client-side only listener.
-    // It should not run on the server.
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        const appUser = await getUserData(firebaseUser.uid);
+        // Pass email to getUserData to create document if it doesn't exist
+        const appUser = await getUserData(firebaseUser.uid, firebaseUser.email);
         setUser(appUser);
       } else {
         setUser(null);
@@ -90,12 +88,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return true;
     } catch (err: any) {
       console.error(err);
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-api-key' || err.code === 'auth/api-key-not-valid.-please-pass-a-valid-api-key.') {
           setError('Invalid email or password. Please try again.');
       } else {
-          setError(err.message || 'An unknown error occurred.');
+          setError('An unknown error occurred. Please try again.');
       }
-      setLoading(false); // only set loading false on error
+      setLoading(false);
       return false;
     }
   };
@@ -103,24 +101,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     await signOut(auth);
     setUser(null);
-    setLoading(true); // To show loader while redirecting
+    // No need to manually set loading, onAuthStateChanged will trigger a state update
     router.push('/login');
   };
 
   const refreshUser = async () => {
       if (auth.currentUser) {
           setLoading(true);
-          const appUser = await getUserData(auth.currentUser.uid);
+          const appUser = await getUserData(auth.currentUser.uid, auth.currentUser.email);
           setUser(appUser);
           setLoading(false);
       }
   }
 
-  const value = { user, loading, error, setError, login, logout, refreshUser };
-  
-  // This is the key change: while loading, especially on initial server render,
-  // we show a full-screen loader and don't render children.
-  // This prevents any child component from trying to use Firebase on the server.
   if (loading) {
      return (
         <div className="w-full h-screen flex items-center justify-center">
@@ -130,7 +123,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{ user, loading, error, setError, login, logout, refreshUser }}>
         {children}
     </AuthContext.Provider>
   );
