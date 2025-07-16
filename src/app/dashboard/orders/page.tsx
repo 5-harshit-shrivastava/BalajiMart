@@ -71,12 +71,12 @@ export default function DashboardOrdersPage() {
     }
   };
 
-  const getStatusVariant = (status: Order['status']) => {
+  const getStatusVariant = (status: Order['status']): "default" | "secondary" | "destructive" | "outline" | null | undefined => {
     switch (status) {
       case 'Ordered Successfully': return 'secondary'
-      case 'Processing': return 'default'
-      case 'In Delivery': return 'outline'
-      case 'Delivered': return 'default' // Consider a different color for delivered if needed
+      case 'Processing': return 'outline' // Black background in dark mode
+      case 'In Delivery': return 'secondary' // Gray background
+      case 'Delivered': return 'default' // Green background
       default: return 'secondary'
     }
   };
@@ -144,13 +144,13 @@ export default function DashboardOrdersPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                           <DropdownMenuItem onSelect={() => handleStatusChange(order.id, 'Processing')}>
+                           <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleStatusChange(order.id, 'Processing'); }}>
                             Mark as Processing
                           </DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => handleStatusChange(order.id, 'In Delivery')}>
+                          <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleStatusChange(order.id, 'In Delivery'); }}>
                             Mark as In Delivery
                           </DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => handleStatusChange(order.id, 'Delivered')}>
+                          <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleStatusChange(order.id, 'Delivered'); }}>
                             Mark as Delivered
                           </DropdownMenuItem>
                         </DropdownMenuContent>

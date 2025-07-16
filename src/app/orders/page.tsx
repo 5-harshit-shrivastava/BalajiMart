@@ -36,12 +36,12 @@ function OrdersPage() {
     }
   }, [user]);
 
-  const getStatusVariant = (status: Order['status']) => {
+  const getStatusVariant = (status: Order['status']): "default" | "secondary" | "destructive" | "outline" | null | undefined => {
     switch (status) {
       case 'Ordered Successfully': return 'secondary'
-      case 'Processing': return 'default'
-      case 'In Delivery': return 'outline'
-      case 'Delivered': return 'default'
+      case 'Processing': return 'outline' // Black background in dark mode
+      case 'In Delivery': return 'secondary' // Gray background
+      case 'Delivered': return 'default' // Green background
       default: return 'secondary'
     }
   }
