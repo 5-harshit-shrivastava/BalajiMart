@@ -93,7 +93,7 @@ export function AddProductDialog() {
       setImagePreview(null);
       setImageFile(null);
       setOpen(false);
-      router.refresh();
+      // router.refresh() is no longer needed because revalidatePath handles it
     } catch (error) {
       console.error("Failed to add product:", error);
       toast({

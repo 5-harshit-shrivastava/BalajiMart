@@ -74,6 +74,21 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
     },
   });
 
+  // Reset form when dialog is opened/closed
+  React.useEffect(() => {
+    if (open) {
+      form.reset({
+        name: product.name,
+        sku: product.sku,
+        stock: product.stock,
+        lowStockThreshold: product.lowStockThreshold,
+        price: product.price,
+      });
+      setImagePreview(product.image);
+      setImageFile(null);
+    }
+  }, [open, product, form]);
+
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -102,7 +117,7 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
       });
       
       setOpen(false);
-      router.refresh();
+      // router.refresh() is no longer needed because revalidatePath handles it
     } catch (error) {
       console.error("Failed to update product:", error);
       toast({
@@ -125,7 +140,6 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
         description: `"${product.name}" has been removed from your inventory.`,
       });
       setOpen(false);
-      router.refresh();
     } catch (error) {
        console.error("Failed to delete product:", error);
        toast({
