@@ -62,8 +62,8 @@ function ShopPage() {
             </div>
             
             {productsLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {Array.from({length: 8}).map((_, i) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                {Array.from({length: 10}).map((_, i) => (
                     <div key={i} className="space-y-4">
                         <div className="bg-muted aspect-square rounded-lg animate-pulse" />
                         <div className="space-y-2">
@@ -74,7 +74,7 @@ function ShopPage() {
                 ))}
             </div>
             ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                 {products.map(product => (
                 <ProductCard key={product.id} product={product} />
                 ))}

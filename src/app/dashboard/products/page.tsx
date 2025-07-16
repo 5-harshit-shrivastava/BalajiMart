@@ -24,7 +24,7 @@ export default async function DashboardProductsPage() {
           <CardDescription>A list of all products in your inventory.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {products.length > 0 ? products.map((product) => (
               <Card key={product.id} className="overflow-hidden">
                 <div className="aspect-square w-full overflow-hidden">
