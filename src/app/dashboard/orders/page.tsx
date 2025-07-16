@@ -2,7 +2,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react";
-import { getOrders, updateOrderStatus } from "@/services/orderService"
+import { getOrders, updateOrderStatus, deleteOrder } from "@/services/orderService"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import {
@@ -18,9 +18,20 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
-import { MoreHorizontal, RefreshCw, ShoppingCart, User, Phone, MapPin, Package } from "lucide-react"
+import { MoreHorizontal, RefreshCw, ShoppingCart, User, Phone, MapPin, Package, Trash2 } from "lucide-react"
 import type { Order } from "@/lib/types"
 import { toast } from "@/hooks/use-toast";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -28,6 +39,8 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 export default function DashboardOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -71,6 +84,35 @@ export default function DashboardOrdersPage() {
       });
     }
   };
+  
+  const handleDeleteRequest = (order: Order) => {
+    setOrderToDelete(order);
+    setShowDeleteConfirm(true);
+  }
+
+  const handleDeleteConfirm = async () => {
+      if (!orderToDelete) return;
+
+      try {
+          await deleteOrder(orderToDelete.id);
+          setOrders(prevOrders => prevOrders.filter(o => o.id !== orderToDelete.id));
+          toast({
+              title: "Order Deleted",
+              description: `Order #${orderToDelete.id.substring(0, 7)} has been successfully deleted.`,
+          });
+      } catch (error) {
+          console.error("Failed to delete order:", error);
+          toast({
+              title: "Error",
+              description: "Failed to delete the order. Please try again.",
+              variant: "destructive",
+          });
+      } finally {
+          setShowDeleteConfirm(false);
+          setOrderToDelete(null);
+      }
+  }
+
 
   const getStatusVariant = (status: Order['status']): "default" | "secondary" | "destructive" | "outline" | null | undefined => {
     switch (status) {
@@ -163,6 +205,11 @@ export default function DashboardOrdersPage() {
                                 <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleStatusChange(order.id, 'Delivered'); }}>
                                     Mark as Delivered
                                 </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onSelect={() => handleDeleteRequest(order)} className="text-destructive">
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Delete Order
+                                </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                             </TableCell>
@@ -220,6 +267,11 @@ export default function DashboardOrdersPage() {
                                                 <DropdownMenuItem onSelect={() => handleStatusChange(order.id, 'Processing')}>Mark as Processing</DropdownMenuItem>
                                                 <DropdownMenuItem onSelect={() => handleStatusChange(order.id, 'In Delivery')}>Mark as In Delivery</DropdownMenuItem>
                                                 <DropdownMenuItem onSelect={() => handleStatusChange(order.id, 'Delivered')}>Mark as Delivered</DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem onSelect={() => handleDeleteRequest(order)} className="text-destructive">
+                                                     <Trash2 className="mr-2 h-4 w-4" />
+                                                     Delete Order
+                                                </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </div>
@@ -233,6 +285,24 @@ export default function DashboardOrdersPage() {
           </CardContent>
         </Card>
       </div>
+       <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete order #{orderToDelete?.id.substring(0, 7)} for {orderToDelete?.customerName}.
+            </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive hover:bg-destructive/90">
+                Yes, delete order
+            </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   )
 }
+
+    

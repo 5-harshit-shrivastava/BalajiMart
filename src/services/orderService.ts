@@ -1,5 +1,5 @@
 import { db, auth } from '@/lib/firebase';
-import { collection, getDocs, addDoc, serverTimestamp, query, where, orderBy, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, serverTimestamp, query, where, orderBy, doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import type { Order, OrderItem, AppUser } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
 
@@ -75,3 +75,11 @@ export const updateOrderStatus = async (orderId: string, status: Order['status']
     const orderRef = doc(db, 'orders', orderId);
     await updateDoc(orderRef, { status });
 };
+
+
+export const deleteOrder = async (orderId: string) => {
+    const orderRef = doc(db, 'orders', orderId);
+    await deleteDoc(orderRef);
+};
+
+    
