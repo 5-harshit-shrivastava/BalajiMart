@@ -44,7 +44,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </CardDescription>
       </CardContent>
       <CardFooter className="p-4 pt-0 flex justify-between items-center">
-        <p className="text-xl font-bold text-primary">${product.price.toFixed(2)}</p>
+        <p className="text-xl font-bold text-primary">₹{product.price.toFixed(2)}</p>
         <Button onClick={handleAddToCart} disabled={product.stock === 0}>
           <ShoppingCart className="mr-2 h-4 w-4" />
           Add to Cart

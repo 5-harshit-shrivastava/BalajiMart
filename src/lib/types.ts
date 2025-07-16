@@ -19,6 +19,8 @@ export type OrderItem = {
 export type Order = {
   id: string;
   customerName: string;
+  customerPhone: string;
+  customerAddress: string;
   items: OrderItem[];
   status: 'In Cart' | 'Ordered Successfully' | 'Delivered' | 'Complete';
   date: string;

@@ -47,6 +47,7 @@ export default function DashboardOrdersPage() {
                 <TableHead>Customer</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Address</TableHead>
                 <TableHead>Items</TableHead>
                 <TableHead className="text-right">Total</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -56,13 +57,17 @@ export default function DashboardOrdersPage() {
               {orders.map((order) => (
                 <TableRow key={order.id}>
                   <TableCell className="font-medium">{order.id}</TableCell>
-                  <TableCell>{order.customerName}</TableCell>
+                  <TableCell>
+                    <div>{order.customerName}</div>
+                    <div className="text-sm text-muted-foreground">{order.customerPhone}</div>
+                  </TableCell>
                   <TableCell>{new Date(order.date).toLocaleDateString()}</TableCell>
                   <TableCell>
                     <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
                   </TableCell>
+                  <TableCell className="max-w-xs truncate">{order.customerAddress}</TableCell>
                   <TableCell className="max-w-xs truncate">{order.items.map(item => `${item.name} (x${item.quantity})`).join(', ')}</TableCell>
-                  <TableCell className="text-right">${order.total.toFixed(2)}</TableCell>
+                  <TableCell className="text-right">₹{order.total.toFixed(2)}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

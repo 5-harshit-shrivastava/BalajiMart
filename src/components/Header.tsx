@@ -70,7 +70,7 @@ export function Header() {
                       <div key={item.product.id} className="grid grid-cols-[1fr_auto_auto] items-center gap-4">
                         <span className="truncate">{item.product.name}</span>
                         <span className="text-sm text-muted-foreground">x{item.quantity}</span>
-                        <span className="font-medium">${(item.product.price * item.quantity).toFixed(2)}</span>
+                        <span className="font-medium">₹{(item.product.price * item.quantity).toFixed(2)}</span>
                       </div>
                     ))
                   ) : (
@@ -82,7 +82,7 @@ export function Header() {
                     <Separator />
                     <div className="flex items-center justify-between font-bold">
                         <span>Total:</span>
-                        <span>${cartTotal.toFixed(2)}</span>
+                        <span>₹{cartTotal.toFixed(2)}</span>
                     </div>
                     <Link href="/cart" passHref>
                       <Button className="w-full">Go to Cart</Button>

@@ -3,7 +3,22 @@ import { SalesChart } from "@/components/dashboard/SalesChart"
 import { InventoryTable } from "@/components/dashboard/InventoryTable"
 import { ReorderSuggestions } from "@/components/dashboard/ReorderSuggestions"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { DollarSign, Package, AlertTriangle } from "lucide-react"
+import { Package, AlertTriangle } from "lucide-react"
+
+// Custom Rupee icon component
+const RupeeSign = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+        <path d="M6 3h12" />
+        <path d="M6 8h12" />
+        <path d="M6 13h12" />
+        <path d="M6 18h12" />
+        <path d="M8 3v18" />
+        <path d="M16 3v18" />
+        <path d="M12 3v18" />
+        <path d="m8 13 4-4 4 4" />
+    </svg>
+);
+
 
 export default function DashboardPage() {
   const totalStock = products.reduce((sum, p) => sum + p.stock, 0)
@@ -11,7 +26,7 @@ export default function DashboardPage() {
   const totalValue = products.reduce((sum, p) => sum + p.stock * p.price, 0)
 
   const stats = [
-    { title: "Total Inventory Value", value: `$${totalValue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`, icon: DollarSign, color: "text-green-500" },
+    { title: "Total Inventory Value", value: `₹${totalValue.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`, icon: RupeeSign, color: "text-green-500" },
     { title: "Total Units", value: totalStock, icon: Package, color: "text-blue-500" },
     { title: "Low Stock Alerts", value: lowStockItems, icon: AlertTriangle, color: "text-yellow-500" },
   ]

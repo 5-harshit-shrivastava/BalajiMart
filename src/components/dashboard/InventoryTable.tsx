@@ -51,7 +51,7 @@ export function InventoryTable({ products }: InventoryTableProps) {
                 </TableCell>
                 <TableCell className="font-medium">{product.name}</TableCell>
                 <TableCell>{product.sku}</TableCell>
-                <TableCell>${product.price.toFixed(2)}</TableCell>
+                <TableCell>₹{product.price.toFixed(2)}</TableCell>
                 <TableCell>{product.stock}</TableCell>
                 <TableCell>
                   {product.stock < product.lowStockThreshold ? (

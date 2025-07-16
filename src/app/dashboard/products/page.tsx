@@ -38,7 +38,7 @@ export default function DashboardProductsPage() {
                   <h3 className="font-semibold truncate">{product.name}</h3>
                   <p className="text-sm text-muted-foreground">{product.sku}</p>
                   <div className="flex justify-between items-center mt-4">
-                    <span className="font-bold text-lg text-primary">${product.price.toFixed(2)}</span>
+                    <span className="font-bold text-lg text-primary">₹{product.price.toFixed(2)}</span>
                     <Button variant="outline" size="sm">
                       <Edit className="mr-2 h-3 w-3" />
                       Edit

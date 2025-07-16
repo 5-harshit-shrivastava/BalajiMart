@@ -35,6 +35,7 @@ export default function OrdersPage() {
                     <TableHead>Order ID</TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Delivery Address</TableHead>
                     <TableHead>Items</TableHead>
                     <TableHead className="text-right">Total</TableHead>
                   </TableRow>
@@ -47,8 +48,9 @@ export default function OrdersPage() {
                       <TableCell>
                         <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
                       </TableCell>
+                      <TableCell>{order.customerAddress}</TableCell>
                        <TableCell>{order.items.map(item => `${item.name} (x${item.quantity})`).join(', ')}</TableCell>
-                      <TableCell className="text-right">${order.total.toFixed(2)}</TableCell>
+                      <TableCell className="text-right">₹{order.total.toFixed(2)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
