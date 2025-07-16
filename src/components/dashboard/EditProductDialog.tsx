@@ -1,7 +1,7 @@
 
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -38,6 +38,7 @@ import { Input } from "@/components/ui/input";
 import { Edit, Loader2, Upload, Trash2 } from "lucide-react";
 import { updateProduct, deleteProduct } from '@/services/productService';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import type { Product } from '@/lib/types';
 
@@ -60,6 +61,7 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(product.image);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const { toast } = useToast();
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof productSchema>>({
     resolver: zodResolver(productSchema),
@@ -73,7 +75,7 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
   });
 
   // Reset form when dialog is opened/closed
-  React.useEffect(() => {
+  useEffect(() => {
     if (open) {
       form.reset({
         name: product.name,
@@ -115,8 +117,9 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
       });
       
       setOpen(false);
+      router.refresh();
     } catch (error) {
-      console.error("Full error object:", error);
+      console.error("Failed to update product:", error);
       toast({
         title: "Error",
         description: "Could not update the product. Please try again.",
@@ -137,8 +140,9 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
         description: `"${product.name}" has been removed from your inventory.`,
       });
       setOpen(false);
+      router.refresh();
     } catch (error) {
-       console.error("Full error object:", error);
+       console.error("Failed to delete product:", error);
        toast({
         title: "Error",
         description: "Could not delete the product. Please try again.",

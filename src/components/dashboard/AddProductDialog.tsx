@@ -29,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { PlusCircle, Loader2, Upload } from "lucide-react";
 import { addProduct } from '@/services/productService';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 const productSchema = z.object({
@@ -45,6 +46,7 @@ export function AddProductDialog() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const { toast } = useToast();
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof productSchema>>({
     resolver: zodResolver(productSchema),
@@ -87,12 +89,10 @@ export function AddProductDialog() {
         description: "The new product has been added to your inventory.",
       });
       
-      form.reset();
-      setImagePreview(null);
-      setImageFile(null);
       setOpen(false);
+      router.refresh();
     } catch (error) {
-      console.error("Full error object:", error);
+      console.error("Failed to add product:", error);
       toast({
         title: "Error",
         description: "Could not add the product. Please try again.",
@@ -103,15 +103,17 @@ export function AddProductDialog() {
     }
   }
 
+  const onOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+        form.reset();
+        setImagePreview(null);
+        setImageFile(null);
+    }
+  }
+
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => {
-        setOpen(isOpen);
-        if (!isOpen) {
-            form.reset();
-            setImagePreview(null);
-            setImageFile(null);
-        }
-    }}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Button>
           <PlusCircle className="mr-2 h-4 w-4" />
