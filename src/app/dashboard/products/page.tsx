@@ -1,9 +1,10 @@
 import { getProducts } from "@/services/productService"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Edit, PlusCircle } from "lucide-react"
+import { Edit } from "lucide-react"
 import Image from "next/image"
 import type { Product } from "@/lib/types"
+import { AddProductDialog } from "@/components/dashboard/AddProductDialog"
 
 export default async function DashboardProductsPage() {
   const products: Product[] = await getProducts();
@@ -15,10 +16,7 @@ export default async function DashboardProductsPage() {
           <h1 className="text-3xl font-bold tracking-tight">Product Management</h1>
           <p className="text-muted-foreground">Add, edit, and manage your product listings.</p>
         </div>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Add New Product
-        </Button>
+        <AddProductDialog />
       </div>
       <Card>
         <CardHeader>
@@ -27,7 +25,7 @@ export default async function DashboardProductsPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.map((product) => (
+            {products.length > 0 ? products.map((product) => (
               <Card key={product.id} className="overflow-hidden">
                 <Image
                   src={product.image}
@@ -35,7 +33,7 @@ export default async function DashboardProductsPage() {
                   width={400}
                   height={300}
                   className="w-full h-40 object-cover"
-                  data-ai-hint={product['data-ai-hint']}
+                  data-ai-hint={product['data-ai-hint'] || "product image"}
                 />
                 <div className="p-4">
                   <h3 className="font-semibold truncate">{product.name}</h3>
@@ -49,7 +47,9 @@ export default async function DashboardProductsPage() {
                   </div>
                 </div>
               </Card>
-            ))}
+            )) : (
+              <p className="text-muted-foreground col-span-full text-center py-10">No products found. Click "Add New Product" to get started.</p>
+            )}
           </div>
         </CardContent>
       </Card>
