@@ -47,7 +47,7 @@ export default async function DashboardPage() {
             </CardHeader>
             <CardContent>
               <Link href={card.href} passHref>
-                <Button variant="outline">
+                <Button variant="outline" size="sm">
                   Go to {card.title}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
