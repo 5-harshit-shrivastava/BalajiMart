@@ -40,17 +40,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        // We need to get up-to-date user data, including emailVerified status
         await firebaseUser.reload();
         const appUser = await getUserData(firebaseUser.uid, firebaseUser.email, firebaseUser.displayName);
         
-        // Combine auth state with firestore data
         if (appUser) {
           setUser({ ...appUser, emailVerified: firebaseUser.emailVerified });
         } else {
           setUser(null);
         }
-
       } else {
         setUser(null);
       }
@@ -66,26 +63,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const isCustomerInfoPage = pathname === '/customer-info';
     const isVerifyPage = pathname === '/verify-email';
 
-    // If no user is logged in
     if (!user) {
-      if (!isAuthPage && !isVerifyPage) { // Allow access to verify page for oob links
+      if (!isAuthPage && !isVerifyPage) {
         router.replace('/login');
       }
       return;
     }
 
-    // If a user is logged in
-    if (user.role === 'customer' && !user.emailVerified) {
-        if (!isVerifyPage) {
-            router.replace('/verify-email');
-        }
-        return;
+    if (user.role === 'customer' && user.emailVerified === false) {
+      if (!isVerifyPage) {
+        router.replace('/verify-email');
+      }
+      return;
     }
     
     if (isAuthPage || isVerifyPage) {
       if (user.role === 'owner') {
         router.replace('/dashboard');
-      } else {
+      } else if (user.role === 'customer' && user.emailVerified) {
         if (!user.infoComplete) {
             router.replace('/customer-info');
         } else {
@@ -118,7 +113,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setError(null);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      // Let onAuthStateChanged handle the rest
       return true;
     } catch (err: any) {
       console.error(err);
@@ -139,7 +133,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setError(null);
     try {
       await signUpAndVerify(email, password, name);
-      // Let onAuthStateChanged handle setting user and loading state
       return true;
     } catch (err: any) {
        console.error(err);
