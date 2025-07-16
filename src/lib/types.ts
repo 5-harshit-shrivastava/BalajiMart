@@ -23,5 +23,20 @@ export type Order = {
   userId: string;
   customerName: string;
   customerPhone: string;
-...
-```
+  customerAddress: string;
+  items: OrderItem[];
+  total: number;
+  status: 'Ordered Successfully' | 'Delivered' | 'Complete';
+  date: string;
+};
+
+export type AppUser = {
+    uid: string;
+    email: string | null;
+    role: 'owner' | 'customer';
+    name: string;
+    infoComplete: boolean;
+    isFromKota?: boolean;
+    address?: string;
+    phone?: string;
+}

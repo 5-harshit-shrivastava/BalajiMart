@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
@@ -114,6 +115,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
   }
 
+  // The AuthProvider now handles its own loading state internally,
+  // and will show a full-screen loader until the initial auth check is complete.
+  // After that, it will render children and the routing logic will take over.
   if (loading) {
      return (
         <div className="w-full h-screen flex items-center justify-center">
