@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -35,7 +34,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Edit, Loader2, Upload, Trash2 } from "lucide-react";
+import { Edit, Loader2, Image as ImageIcon, Trash2 } from "lucide-react";
 import { updateProduct, deleteProduct } from '@/services/productService';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -48,6 +47,7 @@ const productSchema = z.object({
   stock: z.coerce.number().int().min(0, { message: "Stock cannot be negative." }),
   lowStockThreshold: z.coerce.number().int().min(0, { message: "Threshold cannot be negative." }),
   price: z.coerce.number().min(0, { message: "Price cannot be negative." }),
+  image: z.string().url({ message: "Please enter a valid image URL." }).min(1, { message: "Image URL is required." }),
 });
 
 interface EditProductDialogProps {
@@ -58,8 +58,6 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [imagePreview, setImagePreview] = useState<string | null>(product.image);
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const { toast } = useToast();
   const router = useRouter();
 
@@ -71,10 +69,12 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
       stock: product.stock,
       lowStockThreshold: product.lowStockThreshold,
       price: product.price,
+      image: product.image,
     },
   });
 
-  // Reset form when dialog is opened/closed
+  const imagePreview = form.watch("image");
+
   useEffect(() => {
     if (open) {
       form.reset({
@@ -83,23 +83,10 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
         stock: product.stock,
         lowStockThreshold: product.lowStockThreshold,
         price: product.price,
+        image: product.image,
       });
-      setImagePreview(product.image);
-      setImageFile(null);
     }
   }, [open, product, form]);
-
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   async function onSubmit(values: z.infer<typeof productSchema>) {
     setLoading(true);
@@ -109,7 +96,7 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
       await updateProduct(product.id, {
         ...values,
         'data-ai-hint': hint,
-      }, imageFile);
+      });
 
       toast({
         title: "Success!",
@@ -171,22 +158,28 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-              <FormItem>
-                  <FormLabel>Product Image</FormLabel>
-                  <FormControl>
-                      <div className="flex items-center gap-4">
-                          <div className="w-24 h-24 rounded-md border border-dashed flex items-center justify-center bg-muted">
-                          {imagePreview ? (
-                              <Image src={imagePreview} alt="Preview" width={96} height={96} className="object-cover rounded-md" />
-                          ) : (
-                              <Upload className="h-8 w-8 text-muted-foreground" />
-                          )}
-                          </div>
-                          <Input id="picture" type="file" accept="image/*" onChange={handleImageChange} className="flex-1" />
-                      </div>
-                  </FormControl>
-                  <FormMessage />
-              </FormItem>
+               <div className="flex items-center gap-4">
+                 <div className="w-24 h-24 rounded-md border border-dashed flex items-center justify-center bg-muted flex-shrink-0">
+                  {imagePreview ? (
+                      <Image src={imagePreview} alt="Preview" width={96} height={96} className="object-cover rounded-md" onError={(e) => e.currentTarget.src = "https://placehold.co/600x400.png"}/>
+                  ) : (
+                      <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                  )}
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name="image"
+                    render={({ field }) => (
+                      <FormItem className="flex-grow">
+                        <FormLabel>Product Image URL</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+               </div>
 
               <FormField
                 control={form.control}

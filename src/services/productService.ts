@@ -3,7 +3,7 @@
 
 import { db, storage } from '@/lib/firebase';
 import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { ref, deleteObject } from 'firebase/storage';
 import type { Product } from '@/lib/types';
 import { revalidatePath } from 'next/cache';
 
@@ -14,18 +14,9 @@ export async function getProducts(): Promise<Product[]> {
   return productList;
 }
 
-async function uploadImage(imageFile: File, sku: string): Promise<string> {
-    if (!imageFile) return "https://placehold.co/600x400.png";
-    const storageRef = ref(storage, `products/${sku}-${Date.now()}`);
-    const snapshot = await uploadBytes(storageRef, imageFile);
-    const downloadURL = await getDownloadURL(snapshot.ref);
-    return downloadURL;
-}
-
-export async function addProduct(productData: Omit<Product, 'id' | 'image'>, imageFile: File | null): Promise<string> {
-    const imageUrl = imageFile ? await uploadImage(imageFile, productData.sku) : "https://placehold.co/600x400.png";
+export async function addProduct(productData: Omit<Product, 'id'>): Promise<string> {
     const productsCol = collection(db, 'products');
-    const docRef = await addDoc(productsCol, { ...productData, image: imageUrl });
+    const docRef = await addDoc(productsCol, productData);
     
     revalidatePath('/dashboard/products');
     revalidatePath('/');
@@ -34,31 +25,9 @@ export async function addProduct(productData: Omit<Product, 'id' | 'image'>, ima
     return docRef.id;
 }
 
-export async function updateProduct(id: string, productData: Partial<Omit<Product, 'id' | 'image'>>, imageFile: File | null): Promise<void> {
+export async function updateProduct(id: string, productData: Partial<Omit<Product, 'id'>>): Promise<void> {
     const productRef = doc(db, 'products', id);
-    const updateData: Partial<Product> = { ...productData };
-
-    if (imageFile) {
-        // To be safe, let's delete the old image if it exists and is not a placeholder
-        const oldDocSnap = await getDoc(productRef);
-        if (oldDocSnap.exists()) {
-            const oldProductData = oldDocSnap.data() as Product;
-            if (oldProductData.image && oldProductData.image.includes('firebasestorage.googleapis.com')) {
-                 try {
-                    const oldImageRef = ref(storage, oldProductData.image);
-                    await deleteObject(oldImageRef);
-                } catch (error: any) {
-                    // If the object doesn't exist, we can ignore the error and continue.
-                    if (error.code !== 'storage/object-not-found') {
-                        console.error("Could not delete old image, but continuing update. Error:", error);
-                    }
-                }
-            }
-        }
-        updateData.image = await uploadImage(imageFile, productData.sku || `product-${id}`);
-    }
-    
-    await updateDoc(productRef, updateData);
+    await updateDoc(productRef, productData);
 
     revalidatePath('/dashboard/products');
     revalidatePath('/');

@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState } from 'react';
@@ -19,14 +18,13 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { PlusCircle, Loader2, Upload } from "lucide-react";
+import { PlusCircle, Loader2, Image as ImageIcon } from "lucide-react";
 import { addProduct } from '@/services/productService';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -38,13 +36,12 @@ const productSchema = z.object({
   stock: z.coerce.number().int().min(0, { message: "Stock cannot be negative." }),
   lowStockThreshold: z.coerce.number().int().min(0, { message: "Threshold cannot be negative." }),
   price: z.coerce.number().min(0, { message: "Price cannot be negative." }),
+  image: z.string().url({ message: "Please enter a valid image URL." }).min(1, { message: "Image URL is required." }),
 });
 
 export function AddProductDialog() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const { toast } = useToast();
   const router = useRouter();
 
@@ -56,20 +53,11 @@ export function AddProductDialog() {
       stock: 0,
       lowStockThreshold: 10,
       price: 0,
+      image: "",
     },
   });
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  const imagePreview = form.watch("image");
 
   async function onSubmit(values: z.infer<typeof productSchema>) {
     setLoading(true);
@@ -82,7 +70,7 @@ export function AddProductDialog() {
         name,
         'data-ai-hint': hint,
         sales: 0
-      }, imageFile);
+      });
 
       toast({
         title: "Success!",
@@ -107,8 +95,6 @@ export function AddProductDialog() {
     setOpen(isOpen);
     if (!isOpen) {
         form.reset();
-        setImagePreview(null);
-        setImageFile(null);
     }
   }
 
@@ -129,23 +115,29 @@ export function AddProductDialog() {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-             <FormItem>
-                <FormLabel>Product Image</FormLabel>
-                <FormControl>
-                    <div className="flex items-center gap-4">
-                        <div className="w-24 h-24 rounded-md border border-dashed flex items-center justify-center bg-muted">
-                        {imagePreview ? (
-                            <Image src={imagePreview} alt="Preview" width={96} height={96} className="object-cover rounded-md" />
-                        ) : (
-                            <Upload className="h-8 w-8 text-muted-foreground" />
-                        )}
-                        </div>
-                        <Input id="picture" type="file" accept="image/*" onChange={handleImageChange} className="flex-1" />
-                    </div>
-                </FormControl>
-                <FormMessage />
-             </FormItem>
-
+            <div className="flex items-center gap-4">
+              <div className="w-24 h-24 rounded-md border border-dashed flex items-center justify-center bg-muted flex-shrink-0">
+              {imagePreview ? (
+                  <Image src={imagePreview} alt="Preview" width={96} height={96} className="object-cover rounded-md" onError={(e) => e.currentTarget.src = "https://placehold.co/600x400.png"} />
+              ) : (
+                  <ImageIcon className="h-8 w-8 text-muted-foreground" />
+              )}
+              </div>
+               <FormField
+                control={form.control}
+                name="image"
+                render={({ field }) => (
+                  <FormItem className="flex-grow">
+                    <FormLabel>Product Image URL</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://example.com/image.png" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            
             <FormField
               control={form.control}
               name="name"
