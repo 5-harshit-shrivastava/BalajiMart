@@ -3,7 +3,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Briefcase, ShoppingCart, Package, LogOut, User, Store } from "lucide-react"
+import { Briefcase, ShoppingCart, Package, LogOut, User, Store, Home } from "lucide-react"
 import {
   SidebarMenu,
   SidebarMenuItem,
@@ -14,7 +14,8 @@ import { useAuth } from "@/hooks/use-auth"
 import { useCart } from "@/hooks/use-cart"
 
 const menuItems = [
-  { href: "/", label: "Shop", icon: Package },
+  { href: "/", label: "Dashboard", icon: Home },
+  { href: "/shop", label: "Shop", icon: Package },
   { href: "/orders", label: "My Orders", icon: Briefcase },
   { href: "/cart", label: "Cart", icon: ShoppingCart },
   { href: "/profile", label: "My Profile", icon: User },
