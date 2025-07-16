@@ -38,7 +38,6 @@ const productSchema = z.object({
   stock: z.coerce.number().int().min(0, { message: "Stock cannot be negative." }),
   lowStockThreshold: z.coerce.number().int().min(0, { message: "Threshold cannot be negative." }),
   price: z.coerce.number().min(0, { message: "Price cannot be negative." }),
-  image: z.string().optional(), // Now optional, as we'll handle it via file upload
 });
 
 export function AddProductDialog() {
@@ -75,21 +74,15 @@ export function AddProductDialog() {
   async function onSubmit(values: z.infer<typeof productSchema>) {
     setLoading(true);
     try {
-      let imageDataUri = "https://placehold.co/600x400.png";
-      if (imagePreview) {
-          imageDataUri = imagePreview;
-      }
-      
       const { name, ...rest } = values;
       const hint = name.split(' ').slice(0, 2).join(' ').toLowerCase();
 
       await addProduct({
         ...rest,
         name,
-        image: imageDataUri,
         'data-ai-hint': hint,
         sales: 0
-      });
+      }, imageFile);
 
       toast({
         title: "Success!",

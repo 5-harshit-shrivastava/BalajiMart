@@ -59,6 +59,7 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
   const [loading, setLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(product.image);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const { toast } = useToast();
   const router = useRouter();
 
@@ -76,6 +77,7 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -91,9 +93,8 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
 
       await updateProduct(product.id, {
         ...values,
-        image: imagePreview || "https://placehold.co/600x400.png",
         'data-ai-hint': hint,
-      });
+      }, imageFile);
 
       toast({
         title: "Success!",
