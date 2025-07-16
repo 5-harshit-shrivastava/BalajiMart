@@ -4,8 +4,9 @@ import {
   SidebarProvider,
   SidebarInset,
 } from "@/components/ui/sidebar"
+import withAuth from "@/hoc/withAuth"
 
-export default function DashboardLayout({
+function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
@@ -23,3 +24,5 @@ export default function DashboardLayout({
     </SidebarProvider>
   )
 }
+
+export default withAuth(DashboardLayout, ['owner']);

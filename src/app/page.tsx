@@ -2,9 +2,26 @@ import { getProducts } from '@/services/productService';
 import { Header } from '@/components/Header';
 import { ProductCard } from '@/components/ProductCard';
 import type { Product } from '@/lib/types';
+import withAuth from "@/hoc/withAuth"
 
-export default async function ShopPage() {
-  const products: Product[] = await getProducts();
+function ShopPage() {
+  // This page now fetches products on the client side after auth check
+  const [products, setProducts] = React.useState<Product[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const productList = await getProducts();
+        setProducts(productList);
+      } catch (error) {
+        console.error("Failed to fetch products", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -12,11 +29,15 @@ export default async function ShopPage() {
       <main className="flex-1">
         <div className="container max-w-screen-2xl mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold tracking-tight mb-6">Welcome to Balaji Mart</h1>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {products.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          {loading ? (
+            <p>Loading products...</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {products.map(product => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
         </div>
       </main>
       <footer className="py-6 border-t">
@@ -27,3 +48,5 @@ export default async function ShopPage() {
     </div>
   )
 }
+
+export default withAuth(ShopPage, ['customer']);

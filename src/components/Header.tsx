@@ -1,18 +1,21 @@
 "use client"
 
 import Link from "next/link"
-import { ShoppingCart, User, Briefcase } from "lucide-react"
+import { ShoppingCart, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/hooks/use-cart"
+import { useAuth } from "@/hooks/use-auth"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
+import { Briefcase } from "lucide-react"
 
 export function Header() {
   const { cartItems, cartTotal, cartCount } = useCart()
+  const { logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -38,12 +41,10 @@ export function Header() {
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">
-           <Link href="/dashboard">
-              <Button variant="outline" size="sm">
-                <User className="mr-2" />
-                Owner View
-              </Button>
-            </Link>
+           <Button onClick={logout} variant="outline" size="sm">
+            <LogOut className="mr-2 h-4 w-4" />
+            Logout
+          </Button>
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" size="icon" className="relative">

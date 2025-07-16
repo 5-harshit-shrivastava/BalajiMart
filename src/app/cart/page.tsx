@@ -1,5 +1,4 @@
-"use client"
-
+import withAuth from "@/hoc/withAuth"
 import { useCart } from "@/hooks/use-cart"
 import { Header } from "@/components/Header"
 import Image from "next/image"
@@ -9,35 +8,32 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Separator } from "@/components/ui/separator"
 import { Trash2, ShoppingCart } from "lucide-react"
 import Link from "next/link"
-import { toast } from "@/hooks/use-toast"
+import { useToast } from "@/hooks/use-toast"
 import { createOrder } from "@/services/orderService"
+import { useAuth } from "@/hooks/use-auth"
+import { useState } from "react"
+import { Loader2 } from "lucide-react"
 
-export default function CartPage() {
+function CartPage() {
+  const { user } = useAuth();
   const { cartItems, updateQuantity, removeFromCart, cartTotal, clearCart } = useCart()
+  const { toast } = useToast();
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
   const handlePlaceOrder = async () => {
-    if (cartItems.length === 0) return;
+    if (cartItems.length === 0 || !user) return;
 
+    setIsPlacingOrder(true);
     try {
-        await createOrder({
-            // These would come from a user session/form in a real app
-            customerName: 'Alice Johnson', 
-            customerPhone: '+91 98765 43210',
-            customerAddress: '456 Oak Avenue, Mumbai, MH 400001',
-            items: cartItems.map(item => ({
-                productId: item.product.id,
-                name: item.product.name,
-                quantity: item.quantity,
-                price: item.product.price
-            })),
-            total: cartTotal,
-        });
+        const orderId = await createOrder(cartItems, cartTotal);
 
-        toast({
-            title: "Order Placed!",
-            description: "Your order has been successfully placed. Thank you for shopping!",
-        })
-        clearCart()
+        if (orderId) {
+            toast({
+                title: "Order Placed!",
+                description: "Your order has been successfully placed. Thank you for shopping!",
+            })
+            clearCart()
+        }
     } catch (error) {
         console.error("Failed to place order:", error);
         toast({
@@ -45,6 +41,8 @@ export default function CartPage() {
             description: "There was a problem placing your order. Please try again.",
             variant: "destructive",
         })
+    } finally {
+        setIsPlacingOrder(false);
     }
   }
 
@@ -110,7 +108,10 @@ export default function CartPage() {
                 </div>
               </CardContent>
               <CardFooter>
-                 <Button className="w-full" onClick={handlePlaceOrder}>Place Order</Button>
+                 <Button className="w-full" onClick={handlePlaceOrder} disabled={isPlacingOrder}>
+                    {isPlacingOrder ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    Place Order
+                 </Button>
               </CardFooter>
             </Card>
           </div>
@@ -128,3 +129,5 @@ export default function CartPage() {
     </div>
   )
 }
+
+export default withAuth(CartPage, ['customer']);

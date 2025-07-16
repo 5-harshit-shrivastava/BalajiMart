@@ -19,6 +19,7 @@ export type OrderItem = {
 
 export type Order = {
   id: string;
+  userId: string;
   customerName: string;
   customerPhone: string;
   customerAddress: string;
@@ -31,4 +32,18 @@ export type Order = {
 export type CartItem = {
   product: Product;
   quantity: number;
+};
+
+export type UserRole = 'owner' | 'customer';
+
+export type AppUser = {
+  uid: string;
+  email: string | null;
+  role: UserRole;
+  name: string;
+  // customer specific
+  isFromKota?: boolean;
+  address?: string;
+  phone?: string;
+  infoComplete?: boolean;
 };

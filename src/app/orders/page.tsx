@@ -5,10 +5,30 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Package } from "lucide-react"
 import type { Order } from "@/lib/types"
+import withAuth from "@/hoc/withAuth"
+import { useAuth } from "@/hooks/use-auth"
+import React from "react"
 
-export default async function OrdersPage() {
-  // Mocking for one client, in a real app you'd get the current user
-  const clientOrders: Order[] = await getClientOrders("Alice Johnson"); 
+function OrdersPage() {
+  const { user } = useAuth();
+  const [clientOrders, setClientOrders] = React.useState<Order[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchOrders = async () => {
+      if (user?.uid) {
+        try {
+          const orders = await getClientOrders(user.uid);
+          setClientOrders(orders);
+        } catch (error) {
+          console.error("Failed to fetch client orders", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    fetchOrders();
+  }, [user]);
 
   const getStatusVariant = (status: string) => {
     switch (status) {
@@ -30,7 +50,9 @@ export default async function OrdersPage() {
              <CardDescription>A list of your past and current orders.</CardDescription>
           </CardHeader>
           <CardContent>
-            {clientOrders.length > 0 ? (
+            {loading ? (
+              <p>Loading orders...</p>
+            ) : clientOrders.length > 0 ? (
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -45,7 +67,7 @@ export default async function OrdersPage() {
                 <TableBody>
                   {clientOrders.map((order) => (
                     <TableRow key={order.id}>
-                      <TableCell className="font-medium">{order.id}</TableCell>
+                      <TableCell className="font-medium">{order.id.substring(0, 7)}</TableCell>
                       <TableCell>{new Date(order.date).toLocaleDateString()}</TableCell>
                       <TableCell>
                         <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
@@ -70,3 +92,5 @@ export default async function OrdersPage() {
     </div>
   )
 }
+
+export default withAuth(OrdersPage, ['customer']);
