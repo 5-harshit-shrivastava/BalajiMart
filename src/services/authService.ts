@@ -42,7 +42,7 @@ export const getUserData = async (uid: string, email?: string | null): Promise<A
  * @param uid The customer's unique ID.
  * @param data The partial data to update.
  */
-export const updateCustomerInfo = async (uid: string, data: Partial<AppUser>) => {
+export const updateCustomerInfo = async (uid: string, data: Partial<Omit<AppUser, 'uid' | 'email' | 'role'>>) => {
     const userDocRef = doc(db, 'users', uid);
     await updateDoc(userDocRef, data);
 };

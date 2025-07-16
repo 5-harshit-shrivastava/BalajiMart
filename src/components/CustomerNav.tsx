@@ -3,7 +3,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Briefcase, ShoppingCart, Package, LogOut } from "lucide-react"
+import { Briefcase, ShoppingCart, Package, LogOut, User } from "lucide-react"
 import {
   SidebarMenu,
   SidebarMenuItem,
@@ -17,6 +17,7 @@ const menuItems = [
   { href: "/", label: "Shop", icon: Package },
   { href: "/orders", label: "My Orders", icon: Briefcase },
   { href: "/cart", label: "Cart", icon: ShoppingCart },
+  { href: "/profile", label: "My Profile", icon: User },
 ]
 
 export function CustomerNav() {

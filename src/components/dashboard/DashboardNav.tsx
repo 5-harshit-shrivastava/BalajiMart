@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Briefcase, LayoutDashboard, Package, ShoppingCart, LogOut } from "lucide-react"
+import { Briefcase, LayoutDashboard, Package, ShoppingCart, LogOut, Store } from "lucide-react"
 import {
   SidebarMenu,
   SidebarMenuItem,
@@ -15,6 +15,7 @@ const menuItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/orders", label: "Orders", icon: ShoppingCart },
   { href: "/dashboard/products", label: "Products", icon: Package },
+  { href: "/dashboard/store-info", label: "Store Info", icon: Store },
 ]
 
 export function DashboardNav() {
