@@ -37,11 +37,12 @@ function OrdersPage() {
     }
   }, [user]);
 
-  const getStatusVariant = (status: string) => {
+  const getStatusVariant = (status: Order['status']) => {
     switch (status) {
       case 'Ordered Successfully': return 'secondary'
+      case 'Processing': return 'default'
+      case 'In Delivery': return 'outline'
       case 'Delivered': return 'default'
-      case 'Complete': return 'outline'
       default: return 'secondary'
     }
   }

@@ -71,11 +71,12 @@ export default function DashboardOrdersPage() {
     }
   };
 
-  const getStatusVariant = (status: string) => {
+  const getStatusVariant = (status: Order['status']) => {
     switch (status) {
       case 'Ordered Successfully': return 'secondary'
-      case 'Delivered': return 'default'
-      case 'Complete': return 'outline'
+      case 'Processing': return 'default'
+      case 'In Delivery': return 'outline'
+      case 'Delivered': return 'default' // Consider a different color for delivered if needed
       default: return 'secondary'
     }
   };
@@ -143,11 +144,14 @@ export default function DashboardOrdersPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                           <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'Processing')}>
+                            Mark as Processing
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'In Delivery')}>
+                            Mark as In Delivery
+                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'Delivered')}>
                             Mark as Delivered
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'Complete')}>
-                            Mark as Complete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

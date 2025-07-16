@@ -26,7 +26,7 @@ export type Order = {
   customerAddress: string;
   items: OrderItem[];
   total: number;
-  status: 'Ordered Successfully' | 'Delivered' | 'Complete';
+  status: 'Ordered Successfully' | 'Processing' | 'In Delivery' | 'Delivered';
   date: string;
 };
 
