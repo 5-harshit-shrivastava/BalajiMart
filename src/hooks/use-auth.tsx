@@ -5,9 +5,10 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useRouter, usePathname } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, User as FirebaseUser, signOut, signInWithEmailAndPassword } from 'firebase/auth';
-import { getUserData, signUpAndVerify } from '@/services/authService';
+import { getUserData, signUpAndVerify, resendVerificationEmail as resendEmailService } from '@/services/authService';
 import type { AppUser } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
+import { useToast } from './use-toast';
 
 interface AuthContextType {
   user: AppUser | null;
@@ -18,6 +19,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, name: string) => Promise<boolean>;
   logout: () => void;
   refreshUser: () => Promise<void>;
+  resendVerificationEmail: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -36,6 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const pathname = usePathname();
+  const { toast } = useToast();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -112,7 +115,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     setError(null);
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      await signInWithEmailAndPassword(auth, email, password);
       return true;
     } catch (err: any) {
       console.error(err);
@@ -166,6 +169,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setLoading(false);
       }
   }
+
+  const resendVerificationEmail = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+        await resendEmailService();
+        toast({
+            title: "Email Sent!",
+            description: "A new verification link has been sent to your email address.",
+        })
+    } catch (err: any) {
+        console.error(err);
+        if (err.code === "auth/too-many-requests") {
+            setError("You've requested this too recently. Please wait a few minutes before trying again.")
+        } else {
+            setError("Failed to send verification email. Please try again.")
+        }
+    } finally {
+        setLoading(false);
+    }
+  }
   
   const isAuthRoute = pathname === '/login' || pathname === '/customer-info' || pathname === '/verify-email';
   
@@ -178,7 +202,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, setError, login, signUp, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, loading, error, setError, login, signUp, logout, refreshUser, resendVerificationEmail }}>
         {children}
     </AuthContext.Provider>
   );

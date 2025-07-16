@@ -2,7 +2,7 @@
 import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { db, auth } from '@/lib/firebase';
 import type { AppUser } from '@/lib/types';
-import { sendEmailVerification, createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
+import { sendEmailVerification, createUserWithEmailAndPassword, getAuth, User } from 'firebase/auth';
 
 /**
  * Fetches user data from the 'users' collection in Firestore.
@@ -81,6 +81,20 @@ export const signUpAndVerify = async (email: string, password: string, name: str
         throw error;
     }
 }
+
+export const resendVerificationEmail = async () => {
+    const user = auth.currentUser;
+    if (user) {
+        try {
+            await sendEmailVerification(user);
+        } catch (error) {
+            console.error("Error resending verification email:", error);
+            throw error; // Re-throw to be handled by the UI
+        }
+    } else {
+        throw new Error("No user is currently signed in.");
+    }
+};
 
 
 /**
