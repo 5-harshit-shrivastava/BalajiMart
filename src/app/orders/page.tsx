@@ -38,11 +38,13 @@ function OrdersPage() {
 
   const getStatusVariant = (status: Order['status']): "default" | "secondary" | "destructive" | "outline" | null | undefined => {
     switch (status) {
-      case 'Ordered Successfully': return 'secondary'
-      case 'Processing': return 'outline' // Black background in dark mode
-      case 'In Delivery': return 'secondary' // Gray background
-      case 'Delivered': return 'default' // Green background
-      default: return 'secondary'
+      case 'Ordered Successfully':
+      case 'Processing':
+      case 'In Delivery':
+      case 'Delivered':
+        return 'default' // Green background
+      default:
+        return 'secondary'
     }
   }
 
