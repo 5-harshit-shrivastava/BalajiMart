@@ -9,11 +9,18 @@ import {
   CardTitle,
   CardDescription
 } from "@/components/ui/card"
-import { ChartTooltipContent } from "@/components/ui/chart"
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 
 interface SalesChartProps {
   products: Product[]
 }
+
+const chartConfig = {
+  sales: {
+    label: "Sales",
+    color: "hsl(var(--chart-1))",
+  },
+} satisfies import("@/components/ui/chart").ChartConfig
 
 export function SalesChart({ products }: SalesChartProps) {
   const topSellingProducts = products
@@ -28,18 +35,20 @@ export function SalesChart({ products }: SalesChartProps) {
       </CardHeader>
       <CardContent>
         <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={topSellingProducts}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="name" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} tickLine={false} axisLine={false} />
-              <YAxis tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} tickLine={false} axisLine={false} />
-              <Tooltip
-                cursor={{ fill: "hsl(var(--accent))", radius: 'var(--radius)' }}
-                content={<ChartTooltipContent />}
-              />
-              <Bar dataKey="sales" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={topSellingProducts}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="name" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} tickLine={false} axisLine={false} />
+                <YAxis tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} tickLine={false} axisLine={false} />
+                <ChartTooltip
+                  cursor={{ fill: "hsl(var(--accent))", radius: 'var(--radius)' }}
+                  content={<ChartTooltipContent />}
+                />
+                <Bar dataKey="sales" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartContainer>
         </div>
       </CardContent>
     </Card>
