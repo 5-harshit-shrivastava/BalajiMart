@@ -3,11 +3,12 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Briefcase, ShoppingCart, Package, LogOut, Badge } from "lucide-react"
+import { Briefcase, ShoppingCart, Package, LogOut } from "lucide-react"
 import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarMenuBadge,
 } from "@/components/ui/sidebar"
 import { useAuth } from "@/hooks/use-auth"
 import { useCart } from "@/hooks/use-cart"
