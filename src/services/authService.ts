@@ -64,13 +64,18 @@ export const createCustomerUser = async (uid: string, email: string, name: strin
     return newUser;
 };
 
+const actionCodeSettings = {
+    url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002'}/login`,
+    handleCodeInApp: true,
+};
+
 export const signUpAndVerify = async (email: string, password: string, name: string) => {
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         
         // Send verification email
-        await sendEmailVerification(user);
+        await sendEmailVerification(user, actionCodeSettings);
 
         // Create user document in Firestore
         await createCustomerUser(user.uid, email, name);
@@ -86,7 +91,7 @@ export const resendVerificationEmail = async () => {
     const user = auth.currentUser;
     if (user) {
         try {
-            await sendEmailVerification(user);
+            await sendEmailVerification(user, actionCodeSettings);
         } catch (error) {
             console.error("Error resending verification email:", error);
             throw error; // Re-throw to be handled by the UI
