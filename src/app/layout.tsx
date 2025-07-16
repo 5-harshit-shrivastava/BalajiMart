@@ -22,11 +22,11 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased bg-background text-foreground">
-        <AuthProvider>
-          <CartProvider>
+        <CartProvider>
+          <AuthProvider>
             {children}
-          </CartProvider>
-        </AuthProvider>
+          </AuthProvider>
+        </CartProvider>
         <Toaster />
       </body>
     </html>
