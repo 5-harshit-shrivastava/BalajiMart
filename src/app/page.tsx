@@ -7,6 +7,8 @@ import { getProducts } from '@/services/productService';
 import { ProductCard } from '@/components/ProductCard';
 import type { Product } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
+import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
+import { CustomerNav } from '@/components/CustomerNav';
 
 function ShopPage() {
   const { user, loading: authLoading } = useAuth();
@@ -46,34 +48,41 @@ function ShopPage() {
   }
   
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
-        <div className="flex items-center justify-between">
-            <div>
-                <h1 className="text-3xl font-bold tracking-tight">Welcome to Balaji Mart</h1>
-                <p className="text-muted-foreground">Browse our products below.</p>
-            </div>
-        </div>
-        
-        {productsLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {Array.from({length: 8}).map((_, i) => (
-                <div key={i} className="space-y-4">
-                    <div className="bg-muted aspect-square rounded-lg animate-pulse" />
-                    <div className="space-y-2">
-                        <div className="h-5 w-3/4 bg-muted rounded animate-pulse" />
-                        <div className="h-4 w-1/2 bg-muted rounded animate-pulse" />
-                    </div>
+    <SidebarProvider>
+      <Sidebar>
+        <CustomerNav />
+      </Sidebar>
+      <SidebarInset>
+        <main className="min-h-screen p-4 sm:p-6 lg:p-8 space-y-6">
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight">Welcome to Balaji Mart</h1>
+                    <p className="text-muted-foreground">Browse our products below.</p>
                 </div>
-            ))}
-        </div>
-        ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.map(product => (
-            <ProductCard key={product.id} product={product} />
-            ))}
-        </div>
-        )}
-    </div>
+            </div>
+            
+            {productsLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {Array.from({length: 8}).map((_, i) => (
+                    <div key={i} className="space-y-4">
+                        <div className="bg-muted aspect-square rounded-lg animate-pulse" />
+                        <div className="space-y-2">
+                            <div className="h-5 w-3/4 bg-muted rounded animate-pulse" />
+                            <div className="h-4 w-1/2 bg-muted rounded animate-pulse" />
+                        </div>
+                    </div>
+                ))}
+            </div>
+            ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {products.map(product => (
+                <ProductCard key={product.id} product={product} />
+                ))}
+            </div>
+            )}
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
   )
 }
 

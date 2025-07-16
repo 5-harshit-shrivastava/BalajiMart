@@ -8,9 +8,6 @@ import { onAuthStateChanged, User as FirebaseUser, signOut, signInWithEmailAndPa
 import { getUserData } from '@/services/authService';
 import type { AppUser } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
-import { Sidebar, SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { DashboardNav } from '@/components/dashboard/DashboardNav';
-import { CustomerNav } from '@/components/CustomerNav';
 
 interface AuthContextType {
   user: AppUser | null;
@@ -132,67 +129,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setLoading(false);
       }
   }
-
-  const renderContent = () => {
-    if (loading) {
-       return (
-            <div className="w-full h-screen flex items-center justify-center bg-background">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-        );
-    }
-    if (!user) {
-        // Unauthenticated user on /login page
-        return children;
-    }
-    if (user.role === 'owner') {
-        if (pathname.startsWith('/dashboard')) {
-            return (
-                <SidebarProvider>
-                    <Sidebar>
-                        <DashboardNav />
-                    </Sidebar>
-                    <SidebarInset>
-                        <main className="min-h-screen">
-                            {children}
-                        </main>
-                    </SidebarInset>
-                </SidebarProvider>
-            )
-        }
-    }
-    if (user.role === 'customer') {
-        if (pathname === '/customer-info') {
-            return children;
-        }
-         if (!pathname.startsWith('/dashboard')) {
-            return (
-                <SidebarProvider>
-                    <Sidebar>
-                        <CustomerNav />
-                    </Sidebar>
-                    <SidebarInset>
-                         <main className="min-h-screen">
-                            {children}
-                        </main>
-                    </SidebarInset>
-                </SidebarProvider>
-            )
-         }
-    }
-
-    // Fallback loader while redirecting
+  
+  const isAuthRoute = pathname === '/login' || pathname === '/customer-info';
+  
+  if (loading && !isAuthRoute) {
     return (
-        <div className="w-full h-screen flex items-center justify-center bg-background">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
+      <div className="w-full h-screen flex items-center justify-center bg-background">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
     );
   }
 
-
   return (
     <AuthContext.Provider value={{ user, loading, error, setError, login, logout, refreshUser }}>
-        {renderContent()}
+        {children}
     </AuthContext.Provider>
   );
 };
