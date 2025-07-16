@@ -1,33 +1,40 @@
+
+"use client";
+
+import React from "react"
+import { useAuth } from "@/hooks/use-auth"
+import { useRouter } from "next/navigation"
 import { Header } from "@/components/Header"
 import { getClientOrders } from "@/services/orderService"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Package } from "lucide-react"
+import { Package, Loader2 } from "lucide-react"
 import type { Order } from "@/lib/types"
-import withAuth from "@/hoc/withAuth"
-import { useAuth } from "@/hooks/use-auth"
-import React from "react"
 
 function OrdersPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [clientOrders, setClientOrders] = React.useState<Order[]>([]);
-  const [loading, setLoading] = React.useState(true);
+  const [ordersLoading, setOrdersLoading] = React.useState(true);
 
   React.useEffect(() => {
     const fetchOrders = async () => {
       if (user?.uid) {
+        setOrdersLoading(true);
         try {
           const orders = await getClientOrders(user.uid);
           setClientOrders(orders);
         } catch (error) {
           console.error("Failed to fetch client orders", error);
         } finally {
-          setLoading(false);
+          setOrdersLoading(false);
         }
       }
     };
-    fetchOrders();
+    if (user) {
+        fetchOrders();
+    }
   }, [user]);
 
   const getStatusVariant = (status: string) => {
@@ -37,6 +44,14 @@ function OrdersPage() {
       case 'Complete': return 'outline'
       default: return 'secondary'
     }
+  }
+
+  if (authLoading || !user || user.role !== 'customer') {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
   }
 
   return (
@@ -50,8 +65,10 @@ function OrdersPage() {
              <CardDescription>A list of your past and current orders.</CardDescription>
           </CardHeader>
           <CardContent>
-            {loading ? (
-              <p>Loading orders...</p>
+            {ordersLoading ? (
+              <div className="flex justify-center p-8">
+                  <Loader2 className="h-6 w-6 animate-spin" />
+              </div>
             ) : clientOrders.length > 0 ? (
               <Table>
                 <TableHeader>
@@ -93,4 +110,4 @@ function OrdersPage() {
   )
 }
 
-export default withAuth(OrdersPage, ['customer']);
+export default OrdersPage;

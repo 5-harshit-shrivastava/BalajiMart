@@ -12,7 +12,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { updateCustomerInfo } from '@/services/authService';
-import withAuth from '@/hoc/withAuth';
 
 function CustomerInfoPage() {
   const { user, loading, error, setError, refreshUser } = useAuth();
@@ -24,15 +23,20 @@ function CustomerInfoPage() {
   const [formLoading, setFormLoading] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    if (!loading && user) {
         if (user.infoComplete) {
             router.replace('/');
+            return;
+        }
+        if (user.role !== 'customer') {
+            router.replace('/dashboard');
+            return;
         }
         setIsFromKota(user.isFromKota?.toString());
         setAddress(user.address || '');
         setPhone(user.phone || '');
     }
-  }, [user, router]);
+  }, [user, loading, router]);
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,7 +46,7 @@ function CustomerInfoPage() {
         setError("You must be logged in.");
         return;
     }
-    if (!isFromKota) {
+    if (isFromKota === undefined) {
         setError("Please specify if you are from Kota.");
         return;
     }
@@ -55,8 +59,7 @@ function CustomerInfoPage() {
             phone,
             infoComplete: true,
         });
-        await refreshUser(); // Refresh user data in context
-        router.push('/');
+        await refreshUser(); // Refresh user data in context to trigger redirect
     } catch (err) {
         console.error(err);
         setError("Failed to update information. Please try again.");
@@ -65,7 +68,7 @@ function CustomerInfoPage() {
     }
   };
 
-  if (loading || !user) {
+  if (loading || !user || user.role !== 'customer') {
     return (
         <div className="flex items-center justify-center min-h-screen">
             <Loader2 className="h-8 w-8 animate-spin" />
@@ -131,7 +134,7 @@ function CustomerInfoPage() {
               </Alert>
             )}
 
-            <Button type="submit" className="w-full" disabled={formLoading}>
+            <Button type="submit" className="w-full" disabled={formLoading || isFromKota === undefined}>
               {formLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Save and Continue'}
             </Button>
           </form>
@@ -141,4 +144,4 @@ function CustomerInfoPage() {
   );
 }
 
-export default withAuth(CustomerInfoPage, ['customer']);
+export default CustomerInfoPage;

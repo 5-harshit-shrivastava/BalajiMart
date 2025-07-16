@@ -1,4 +1,8 @@
-import withAuth from "@/hoc/withAuth"
+
+"use client"
+
+import { useAuth } from "@/hooks/use-auth"
+import { useRouter } from "next/navigation"
 import { useCart } from "@/hooks/use-cart"
 import { Header } from "@/components/Header"
 import Image from "next/image"
@@ -6,16 +10,16 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { Trash2, ShoppingCart } from "lucide-react"
+import { Trash2, ShoppingCart, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
 import { createOrder } from "@/services/orderService"
-import { useAuth } from "@/hooks/use-auth"
 import { useState } from "react"
-import { Loader2 } from "lucide-react"
+
 
 function CartPage() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  const router = useRouter();
   const { cartItems, updateQuantity, removeFromCart, cartTotal, clearCart } = useCart()
   const { toast } = useToast();
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
@@ -44,6 +48,14 @@ function CartPage() {
     } finally {
         setIsPlacingOrder(false);
     }
+  }
+
+  if (loading || !user || user.role !== 'customer') {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
   }
 
   return (
@@ -130,4 +142,4 @@ function CartPage() {
   )
 }
 
-export default withAuth(CartPage, ['customer']);
+export default CartPage;

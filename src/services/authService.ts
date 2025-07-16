@@ -1,12 +1,7 @@
 
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { AppUser } from '@/lib/types';
-
-export interface TLoginCredentials {
-  email: string;
-  password?: string;
-}
 
 /**
  * Fetches user data from the 'users' collection in Firestore.
@@ -14,13 +9,19 @@ export interface TLoginCredentials {
  * @returns The user data object or null if not found.
  */
 export const getUserData = async (uid: string): Promise<AppUser | null> => {
-  const userDocRef = doc(db, 'users', uid);
-  const userDocSnap = await getDoc(userDocRef);
+  try {
+    const userDocRef = doc(db, 'users', uid);
+    const userDocSnap = await getDoc(userDocRef);
 
-  if (userDocSnap.exists()) {
-    return userDocSnap.data() as AppUser;
-  } else {
-    console.warn(`No user document found for UID: ${uid}`);
+    if (userDocSnap.exists()) {
+      return userDocSnap.data() as AppUser;
+    } else {
+      console.warn(`No user document found for UID: ${uid}`);
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    // In case of Firestore errors (e.g. permissions), return null
     return null;
   }
 };

@@ -36,84 +36,102 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
   const pathname = usePathname();
 
-  const handleAuthStateChanged = async (firebaseUser: FirebaseUser | null) => {
-    if (firebaseUser) {
-      const appUser = await getUserData(firebaseUser.uid);
-      if (appUser) {
+  useEffect(() => {
+    // onAuthStateChanged is a client-side only listener.
+    // It should not run on the server.
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        const appUser = await getUserData(firebaseUser.uid);
         setUser(appUser);
-        if (pathname === '/login') {
-           if (appUser.role === 'owner') {
-             router.replace('/dashboard');
-           } else if (!appUser.infoComplete) {
-             router.replace('/customer-info');
-           } else {
-             router.replace('/');
-           }
-        } else if (appUser.role === 'customer' && !appUser.infoComplete && pathname !== '/customer-info') {
-            router.replace('/customer-info');
-        }
       } else {
-        // This case can happen if user exists in Auth but not in Firestore 'users' collection
-        // Or if there is a delay in user document creation.
-        // For this app, we assume a user doc always exists upon signup.
         setUser(null);
-        if (pathname !== '/login') router.replace('/login');
+      }
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (loading) return;
+
+    const isAuthPage = pathname === '/login';
+    const isCustomerInfoPage = pathname === '/customer-info';
+
+    if (!user) {
+      if (!isAuthPage) {
+        router.replace('/login');
       }
     } else {
-      setUser(null);
-      if (pathname !== '/login') router.replace('/login');
+      if (user.role === 'owner') {
+        if (!pathname.startsWith('/dashboard')) {
+          router.replace('/dashboard');
+        }
+      } else if (user.role === 'customer') {
+        if (!user.infoComplete && !isCustomerInfoPage) {
+          router.replace('/customer-info');
+        } else if (user.infoComplete && isCustomerInfoPage) {
+          router.replace('/');
+        } else if (pathname.startsWith('/dashboard')) {
+            router.replace('/');
+        }
+      }
+       if (isAuthPage && user) {
+         router.replace(user.role === 'owner' ? '/dashboard' : '/');
+       }
     }
-    setLoading(false);
-  };
-  
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, handleAuthStateChanged);
-    return () => unsubscribe();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user, loading, pathname, router]);
 
   const login = async (email:string, password:string) => {
     setLoading(true);
     setError(null);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // onAuthStateChanged will handle user state and redirection
+      // onAuthStateChanged will handle user state update and redirection
       return true;
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'An unknown error occurred.');
-      setLoading(false);
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+          setError('Invalid email or password. Please try again.');
+      } else {
+          setError(err.message || 'An unknown error occurred.');
+      }
+      setLoading(false); // only set loading false on error
       return false;
     }
   };
 
   const logout = async () => {
-    setLoading(true);
     await signOut(auth);
     setUser(null);
+    setLoading(true); // To show loader while redirecting
     router.push('/login');
-    setLoading(false);
   };
 
   const refreshUser = async () => {
       if (auth.currentUser) {
+          setLoading(true);
           const appUser = await getUserData(auth.currentUser.uid);
           setUser(appUser);
+          setLoading(false);
       }
   }
 
   const value = { user, loading, error, setError, login, logout, refreshUser };
+  
+  // This is the key change: while loading, especially on initial server render,
+  // we show a full-screen loader and don't render children.
+  // This prevents any child component from trying to use Firebase on the server.
+  if (loading) {
+     return (
+        <div className="w-full h-screen flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+    );
+  }
 
   return (
     <AuthContext.Provider value={value}>
-        {/* Render a global loading screen while checking auth state on initial load */}
-        {loading && !user && pathname !== '/login' ? (
-            <div className="w-full h-screen flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin" />
-            </div>
-        ) : (
-            children
-        )}
+        {children}
     </AuthContext.Provider>
   );
 };
