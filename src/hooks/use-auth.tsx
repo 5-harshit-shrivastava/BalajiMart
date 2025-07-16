@@ -39,7 +39,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        // Pass email to getUserData to create document if it doesn't exist
         const appUser = await getUserData(firebaseUser.uid, firebaseUser.email);
         setUser(appUser);
       } else {
@@ -56,28 +55,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const isAuthPage = pathname === '/login';
     const isCustomerInfoPage = pathname === '/customer-info';
 
+    // If no user is logged in
     if (!user) {
       if (!isAuthPage) {
         router.replace('/login');
       }
-    } else {
-      if (user.role === 'owner') {
-        if (!pathname.startsWith('/dashboard')) {
-          router.replace('/dashboard');
-        }
-      } else if (user.role === 'customer') {
-        if (!user.infoComplete && !isCustomerInfoPage) {
-          router.replace('/customer-info');
-        } else if (user.infoComplete && isCustomerInfoPage) {
-          router.replace('/');
-        } else if (pathname.startsWith('/dashboard')) {
-            router.replace('/');
-        }
-      }
-       if (isAuthPage && user) {
-         router.replace(user.role === 'owner' ? '/dashboard' : '/');
-       }
+      return;
     }
+
+    // If a user is logged in
+    if (user.role === 'owner') {
+      // Owner should be on dashboard pages
+      if (!pathname.startsWith('/dashboard')) {
+        router.replace('/dashboard');
+      }
+    } else if (user.role === 'customer') {
+      // Customer needs to complete their info first
+      if (!user.infoComplete && !isCustomerInfoPage) {
+        router.replace('/customer-info');
+      }
+      // If info is complete but they are on the info page, redirect to home
+      else if (user.infoComplete && isCustomerInfoPage) {
+        router.replace('/');
+      }
+      // Customers should not be able to access the dashboard
+      else if (pathname.startsWith('/dashboard')) {
+        router.replace('/');
+      }
+    }
+
+    // If a logged-in user somehow lands on the login page, redirect them away
+    if (isAuthPage) {
+      router.replace(user.role === 'owner' ? '/dashboard' : '/');
+    }
+
   }, [user, loading, pathname, router]);
 
   const login = async (email:string, password:string) => {
@@ -85,11 +96,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setError(null);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // onAuthStateChanged will handle user state update and redirection
       return true;
     } catch (err: any) {
       console.error(err);
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-api-key' || err.code === 'auth/api-key-not-valid.-please-pass-a-valid-api-key.') {
+       if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential' || err.code === 'auth/api-key-not-valid.-please-pass-a-valid-api-key.') {
           setError('Invalid email or password. Please try again.');
       } else {
           setError('An unknown error occurred. Please try again.');
@@ -102,7 +112,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     await signOut(auth);
     setUser(null);
-    // No need to manually set loading, onAuthStateChanged will trigger a state update
     router.push('/login');
   };
 
@@ -115,9 +124,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
   }
 
-  // The AuthProvider now handles its own loading state internally,
-  // and will show a full-screen loader until the initial auth check is complete.
-  // After that, it will render children and the routing logic will take over.
   if (loading) {
      return (
         <div className="w-full h-screen flex items-center justify-center">
