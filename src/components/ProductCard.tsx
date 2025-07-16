@@ -38,14 +38,14 @@ export function ProductCard({ product }: ProductCardProps) {
           />
         </div>
       </CardHeader>
-      <CardContent className="p-4 flex-grow">
-        <CardTitle className="text-lg font-semibold">{product.name}</CardTitle>
-        <CardDescription className="text-sm text-muted-foreground mt-1">
+      <CardContent className="p-3 flex-grow">
+        <CardTitle className="text-sm md:text-base font-semibold truncate">{product.name}</CardTitle>
+        <CardDescription className="text-xs md:text-sm text-muted-foreground mt-1">
           {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
         </CardDescription>
       </CardContent>
-      <CardFooter className="p-4 pt-0 flex justify-between items-center">
-        <p className="text-xl font-bold text-primary">₹{product.price.toFixed(2)}</p>
+      <CardFooter className="p-3 pt-0 flex justify-between items-center">
+        <p className="text-base md:text-lg font-bold text-primary">₹{product.price.toFixed(2)}</p>
         <Button onClick={handleAddToCart} disabled={product.stock === 0} size="sm">
           <ShoppingCart className="mr-2 h-4 w-4" />
           Add

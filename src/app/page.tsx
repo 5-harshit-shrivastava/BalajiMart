@@ -83,7 +83,7 @@ function ShopPage() {
             </div>
             
             {productsLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {Array.from({length: 10}).map((_, i) => (
                     <div key={i} className="space-y-4">
                         <div className="bg-muted aspect-square rounded-lg animate-pulse" />
@@ -95,7 +95,7 @@ function ShopPage() {
                 ))}
             </div>
             ) : filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {filteredProducts.map(product => (
                 <ProductCard key={product.id} product={product} />
                 ))}

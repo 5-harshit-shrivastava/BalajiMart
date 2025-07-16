@@ -25,7 +25,7 @@ export default async function DashboardProductsPage() {
           <CardDescription>A list of all products in your inventory.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {products.length > 0 ? products.map((product) => (
               <Card key={product.id} className="overflow-hidden flex flex-col">
                 <div className="aspect-square w-full overflow-hidden">
@@ -39,8 +39,8 @@ export default async function DashboardProductsPage() {
                   />
                 </div>
                 <div className="p-4 flex flex-col flex-grow">
-                  <h3 className="font-semibold truncate">{product.name}</h3>
-                  <p className="text-sm text-muted-foreground">{product.sku}</p>
+                  <h3 className="font-semibold truncate text-sm md:text-base">{product.name}</h3>
+                  <p className="text-xs md:text-sm text-muted-foreground">{product.sku}</p>
                   <div className="mt-2">
                     {product.stock < product.lowStockThreshold ? (
                         <Badge variant="destructive">Low Stock ({product.stock})</Badge>
@@ -51,7 +51,7 @@ export default async function DashboardProductsPage() {
                     )}
                   </div>
                   <div className="flex justify-between items-center mt-4 pt-4 border-t border-border">
-                    <span className="font-bold text-lg text-primary">₹{product.price.toFixed(2)}</span>
+                    <span className="font-bold text-base md:text-lg text-primary">₹{product.price.toFixed(2)}</span>
                     <EditProductDialog product={product} />
                   </div>
                 </div>
