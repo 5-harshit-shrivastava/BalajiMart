@@ -1,3 +1,4 @@
+
 "use client"
 
 import Image from "next/image"
@@ -26,12 +27,12 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Card className="flex flex-col overflow-hidden transition-all duration-300 hover:shadow-primary/20 hover:shadow-lg hover:-translate-y-1">
       <CardHeader className="p-0">
-        <div className="aspect-video overflow-hidden">
+        <div className="aspect-square overflow-hidden">
           <Image
             src={product.image}
             alt={product.name}
             width={600}
-            height={400}
+            height={600}
             className="object-cover w-full h-full transition-transform duration-300 hover:scale-105"
             data-ai-hint={product['data-ai-hint']}
           />

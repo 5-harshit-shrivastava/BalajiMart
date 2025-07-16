@@ -1,3 +1,4 @@
+
 import { getProducts } from "@/services/productService"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import Image from "next/image"
@@ -26,14 +27,16 @@ export default async function DashboardProductsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {products.length > 0 ? products.map((product) => (
               <Card key={product.id} className="overflow-hidden">
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  width={400}
-                  height={300}
-                  className="w-full h-40 object-cover"
-                  data-ai-hint={product['data-ai-hint'] || "product image"}
-                />
+                <div className="aspect-square w-full overflow-hidden">
+                  <Image
+                    src={product.image}
+                    alt={product.name}
+                    width={400}
+                    height={400}
+                    className="w-full h-full object-cover"
+                    data-ai-hint={product['data-ai-hint'] || "product image"}
+                  />
+                </div>
                 <div className="p-4">
                   <h3 className="font-semibold truncate">{product.name}</h3>
                   <p className="text-sm text-muted-foreground">{product.sku}</p>
