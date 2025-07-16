@@ -2,7 +2,6 @@
 import Link from "next/link"
 import { getProducts } from "@/services/productService"
 import { SalesChart } from "@/components/dashboard/SalesChart"
-import { SeedDataButton } from "@/components/dashboard/SeedDataButton"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Package, ShoppingCart, BarChart2, ArrowRight, LayoutDashboard } from "lucide-react"
@@ -42,7 +41,6 @@ export default async function DashboardPage() {
             <h1 className="text-3xl font-bold tracking-tight hidden md:block">Owner Dashboard</h1>
             <p className="text-muted-foreground">Welcome back, here's your business overview.</p>
           </div>
-          <SeedDataButton />
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
