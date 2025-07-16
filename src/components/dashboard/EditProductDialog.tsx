@@ -115,9 +115,8 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
       });
       
       setOpen(false);
-      // No need for router.refresh() as revalidatePath in the service handles it
     } catch (error) {
-      console.error("Failed to update product:", error);
+      console.error("Full error object:", error);
       toast({
         title: "Error",
         description: "Could not update the product. Please try again.",
@@ -139,7 +138,7 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
       });
       setOpen(false);
     } catch (error) {
-       console.error("Failed to delete product:", error);
+       console.error("Full error object:", error);
        toast({
         title: "Error",
         description: "Could not delete the product. Please try again.",

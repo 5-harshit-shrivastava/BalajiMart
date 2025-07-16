@@ -50,7 +50,7 @@ export async function updateProduct(id: string, productData: Partial<Omit<Produc
                 } catch (error: any) {
                     // If the object doesn't exist, we can ignore the error and continue.
                     if (error.code !== 'storage/object-not-found') {
-                        console.error("Could not delete old image, but continuing update.", error);
+                        console.error("Could not delete old image, but continuing update. Error:", error);
                     }
                 }
             }
