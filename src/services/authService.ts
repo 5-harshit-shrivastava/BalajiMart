@@ -1,7 +1,8 @@
 
 import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { db, auth } from '@/lib/firebase';
 import type { AppUser } from '@/lib/types';
+import { sendEmailVerification } from 'firebase/auth';
 
 /**
  * Fetches user data from the 'users' collection in Firestore.
@@ -50,6 +51,19 @@ export const createCustomerUser = async (uid: string, email: string, name: strin
     await setDoc(userDocRef, newUser);
     return newUser;
 };
+
+export const signUpAndVerify = async (email: string, password: string, name: string) => {
+    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+    const user = userCredential.user;
+    
+    // Send verification email
+    await sendEmailVerification(user);
+
+    // Create user document in Firestore
+    await createCustomerUser(user.uid, email, name);
+    
+    return user;
+}
 
 
 /**

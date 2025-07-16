@@ -4,8 +4,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { auth } from '@/lib/firebase';
-import { onAuthStateChanged, User as FirebaseUser, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { getUserData, createCustomerUser } from '@/services/authService';
+import { onAuthStateChanged, User as FirebaseUser, signOut, signInWithEmailAndPassword } from 'firebase/auth';
+import { getUserData, signUpAndVerify } from '@/services/authService';
 import type { AppUser } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
 
@@ -40,8 +40,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
+        // We need to get up-to-date user data, including emailVerified status
+        await firebaseUser.reload();
         const appUser = await getUserData(firebaseUser.uid, firebaseUser.email, firebaseUser.displayName);
-        setUser(appUser);
+        
+        // Combine auth state with firestore data
+        if (appUser) {
+          setUser({ ...appUser, emailVerified: firebaseUser.emailVerified });
+        } else {
+          setUser(null);
+        }
+
       } else {
         setUser(null);
       }
@@ -55,17 +64,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const isAuthPage = pathname === '/login';
     const isCustomerInfoPage = pathname === '/customer-info';
+    const isVerifyPage = pathname === '/verify-email';
 
     // If no user is logged in
     if (!user) {
-      if (!isAuthPage) {
+      if (!isAuthPage && !isVerifyPage) { // Allow access to verify page for oob links
         router.replace('/login');
       }
       return;
     }
 
     // If a user is logged in
-    if (isAuthPage) {
+    if (user.role === 'customer' && !user.emailVerified) {
+        if (!isVerifyPage) {
+            router.replace('/verify-email');
+        }
+        return;
+    }
+    
+    if (isAuthPage || isVerifyPage) {
       if (user.role === 'owner') {
         router.replace('/dashboard');
       } else {
@@ -100,7 +117,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     setError(null);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      // Let onAuthStateChanged handle the rest
       return true;
     } catch (err: any) {
       console.error(err);
@@ -120,8 +138,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     setError(null);
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      await createCustomerUser(userCredential.user.uid, email, name);
+      await signUpAndVerify(email, password, name);
       // Let onAuthStateChanged handle setting user and loading state
       return true;
     } catch (err: any) {
@@ -148,13 +165,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const refreshUser = async () => {
       if (auth.currentUser) {
           setLoading(true);
+          await auth.currentUser.reload();
           const appUser = await getUserData(auth.currentUser.uid, auth.currentUser.email);
-          setUser(appUser);
+          if (appUser) {
+            setUser({ ...appUser, emailVerified: auth.currentUser.emailVerified });
+          }
           setLoading(false);
       }
   }
   
-  const isAuthRoute = pathname === '/login' || pathname === '/customer-info';
+  const isAuthRoute = pathname === '/login' || pathname === '/customer-info' || pathname === '/verify-email';
   
   if (loading && !isAuthRoute) {
     return (

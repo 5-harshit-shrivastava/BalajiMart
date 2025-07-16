@@ -39,4 +39,5 @@ export type AppUser = {
     isFromKota?: boolean;
     address?: string;
     phone?: string;
+    emailVerified?: boolean;
 }

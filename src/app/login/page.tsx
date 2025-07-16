@@ -101,7 +101,7 @@ export default function LoginPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Create an Account</CardTitle>
-                <CardDescription>Join us to start shopping!</CardDescription>
+                <CardDescription>Join us to start shopping! A verification link will be sent to your email.</CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSignUp} className="space-y-4">
