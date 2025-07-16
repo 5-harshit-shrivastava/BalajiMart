@@ -2,28 +2,40 @@
 import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { db, auth } from '@/lib/firebase';
 import type { AppUser } from '@/lib/types';
-import { sendEmailVerification, createUserWithEmailAndPassword } from 'firebase/auth';
+import { sendEmailVerification, createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
 
 /**
  * Fetches user data from the 'users' collection in Firestore.
  * If the document doesn't exist, it creates one for a new customer.
+ * It also merges the firestore data with the live email verification status from Firebase Auth.
  * @param uid The user's unique ID.
  * @param email The user's email.
  * @param displayName The user's display name, if available.
- * @returns The user data object.
+ * @returns The user data object with the correct emailVerified status.
  */
 export const getUserData = async (uid: string, email?: string | null, displayName?: string | null): Promise<AppUser | null> => {
   try {
     const userDocRef = doc(db, 'users', uid);
     const userDocSnap = await getDoc(userDocRef);
+    const authInstance = getAuth();
+    const firebaseUser = authInstance.currentUser;
+
+    // Default to false, but check the live status if a user is available
+    let isVerified = false;
+    if (firebaseUser && firebaseUser.uid === uid) {
+      await firebaseUser.reload(); // Ensure we have the latest auth state
+      isVerified = firebaseUser.emailVerified;
+    }
 
     if (userDocSnap.exists()) {
-      return userDocSnap.data() as AppUser;
+      const firestoreUser = userDocSnap.data() as AppUser;
+      // Combine Firestore data with live verification status
+      return { ...firestoreUser, emailVerified: isVerified };
     } else {
       // This case is mostly for social auth providers or if creation fails in signUp
-      // For email/password, the document is created in `createCustomerUser`.
       console.log(`Creating new user document for UID: ${uid}`);
-      return await createCustomerUser(uid, email || '', displayName || email?.split('@')[0] || 'New User');
+      const newCustomer = await createCustomerUser(uid, email || '', displayName || email?.split('@')[0] || 'New User');
+      return { ...newCustomer, emailVerified: isVerified };
     }
   } catch (error) {
     console.error("Error fetching or creating user data:", error);
